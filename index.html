@@ -948,7 +948,7 @@ html, body {
 // Charge Supabase dynamiquement puis lance l'app
 (function() {
   var s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.7/umd/supabase.min.js';
+  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
   s.onload = function() { window._supabaseLoaded = true; tryInit(); };
   s.onerror = function() { console.error('Impossible de charger Supabase'); };
   document.head.appendChild(s);
