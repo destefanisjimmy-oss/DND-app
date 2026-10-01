@@ -944,7 +944,7 @@ html, body {
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.7/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.7/umd/supabase.min.js" onload="onSupabaseReady()"></script>
 <script>
 // ─────────────────────────────────────────────
 // CONFIG — remplace par tes vraies valeurs
@@ -968,13 +968,26 @@ let editingCombatantId = null, editingNoteId = null;
 // ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
+let domReady = false, supabaseReady = false;
+
 document.addEventListener('DOMContentLoaded', () => {
+  domReady = true;
+  tryInit();
+});
+
+function onSupabaseReady() {
+  supabaseReady = true;
+  tryInit();
+}
+
+function tryInit() {
+  if (!domReady || !supabaseReady) return;
   sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
   buildConditionsPickers();
   setupLogin();
   setupNavigation();
   setupModals();
-});
+}
 
 // ─────────────────────────────────────────────
 // LOGIN
