@@ -653,6 +653,44 @@ html, body {
 }
 .char-edit-btn:hover { color: var(--fg); }
 
+/* Boutons de sélection de perso */
+.char-pick-btn {
+  width: 100%;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 0.15s;
+  font-family: var(--font-ui);
+}
+.char-pick-btn:hover { background: var(--bg-4); border-color: var(--gold-dim); }
+.char-pick-name {
+  font-family: var(--font-title);
+  font-size: 0.95rem;
+  color: var(--gold);
+  letter-spacing: 0.03em;
+}
+.char-pick-class { font-size: 0.72rem; color: var(--fg-muted); margin-top: 2px; }
+.char-pick-edit {
+  font-size: 0.72rem;
+  color: var(--fg-muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-family: var(--font-ui);
+}
+.char-pick-edit:hover { color: var(--fg); border-color: var(--fg-muted); }
+
 /* Bonus rapides dans les dés */
 .bonus-quick {
   display: flex;
@@ -806,46 +844,109 @@ html, body {
   </div>
 </div>
 
-<!-- PLAYER NAME SCREEN -->
+<!-- PLAYER SELECT SCREEN -->
 <div id="player-name-screen" class="screen">
   <div class="perso-screen active" style="height:100%">
     <div class="perso-box">
-      <div class="perso-header">
-        <div class="perso-header-title">⚔️ Qui êtes-vous ?</div>
-        <div class="perso-header-sub">Entrez les informations de votre personnage avant d'entrer</div>
+
+      <!-- Step 1: choose existing or create -->
+      <div id="pn-step-choose">
+        <div class="perso-header">
+          <div class="perso-header-title">🎲 Qui joue ?</div>
+          <div class="perso-header-sub" id="pn-choose-sub">Chargement des personnages…</div>
+        </div>
+        <div class="perso-body" id="pn-char-list" style="gap:8px">
+          <!-- character buttons injected here -->
+        </div>
+        <div class="perso-footer" style="justify-content:space-between">
+          <button class="btn" id="pn-back-btn">← Retour</button>
+          <button class="btn primary" id="pn-new-btn">+ Nouveau personnage</button>
+        </div>
       </div>
-      <div class="perso-body">
-        <div class="field">
-          <label>Nom du personnage *</label>
-          <input type="text" id="pn-char-name" placeholder="Éowyn, Thorin, Aragorn…" maxlength="40" />
+
+      <!-- Step 2: create new character form -->
+      <div id="pn-step-create" style="display:none">
+        <div class="perso-header">
+          <div class="perso-header-title">⚔️ Nouveau personnage</div>
+          <div class="perso-header-sub">Remplis ta fiche, tu pourras la modifier plus tard</div>
         </div>
-        <div class="field">
-          <label>Classe / Race</label>
-          <input type="text" id="pn-char-class" placeholder="Guerrier Nain, Mage Elfe…" maxlength="40" />
-        </div>
-        <div>
-          <div class="nav-section" style="padding-inline:0;margin-bottom:10px">Modificateurs de caractéristiques</div>
-          <div class="bonus-grid">
-            <div class="bonus-item"><label>FOR</label><input type="number" id="pn-for" value="0" min="-5" max="10" /></div>
-            <div class="bonus-item"><label>DEX</label><input type="number" id="pn-dex" value="0" min="-5" max="10" /></div>
-            <div class="bonus-item"><label>CON</label><input type="number" id="pn-con" value="0" min="-5" max="10" /></div>
-            <div class="bonus-item"><label>INT</label><input type="number" id="pn-int" value="0" min="-5" max="10" /></div>
-            <div class="bonus-item"><label>SAG</label><input type="number" id="pn-sag" value="0" min="-5" max="10" /></div>
-            <div class="bonus-item"><label>CHA</label><input type="number" id="pn-cha" value="0" min="-5" max="10" /></div>
+        <div class="perso-body">
+          <div class="field">
+            <label>Nom du personnage *</label>
+            <input type="text" id="pn-char-name" placeholder="Éowyn, Thorin, Aragorn…" maxlength="40" />
+          </div>
+          <div class="field">
+            <label>Classe / Race</label>
+            <input type="text" id="pn-char-class" placeholder="Guerrier Nain, Mage Elfe…" maxlength="40" />
+          </div>
+          <div>
+            <div class="nav-section" style="padding-inline:0;margin-bottom:10px">Modificateurs de caractéristiques</div>
+            <div class="bonus-grid">
+              <div class="bonus-item"><label>FOR</label><input type="number" id="pn-for" value="0" min="-5" max="10" /></div>
+              <div class="bonus-item"><label>DEX</label><input type="number" id="pn-dex" value="0" min="-5" max="10" /></div>
+              <div class="bonus-item"><label>CON</label><input type="number" id="pn-con" value="0" min="-5" max="10" /></div>
+              <div class="bonus-item"><label>INT</label><input type="number" id="pn-int" value="0" min="-5" max="10" /></div>
+              <div class="bonus-item"><label>SAG</label><input type="number" id="pn-sag" value="0" min="-5" max="10" /></div>
+              <div class="bonus-item"><label>CHA</label><input type="number" id="pn-cha" value="0" min="-5" max="10" /></div>
+            </div>
+          </div>
+          <div>
+            <div class="nav-section" style="padding-inline:0;margin-bottom:10px">Autres modificateurs</div>
+            <div class="bonus-grid">
+              <div class="bonus-item"><label>Perception</label><input type="number" id="pn-perception" value="0" min="-5" max="15" /></div>
+              <div class="bonus-item"><label>Attaque</label><input type="number" id="pn-attaque" value="0" min="-5" max="15" /></div>
+              <div class="bonus-item"><label>Sort</label><input type="number" id="pn-sort" value="0" min="-5" max="15" /></div>
+            </div>
           </div>
         </div>
-        <div>
-          <div class="nav-section" style="padding-inline:0;margin-bottom:10px">Autres modificateurs</div>
-          <div class="bonus-grid">
-            <div class="bonus-item"><label>Perception</label><input type="number" id="pn-perception" value="0" min="-5" max="15" /></div>
-            <div class="bonus-item"><label>Attaque</label><input type="number" id="pn-attaque" value="0" min="-5" max="15" /></div>
-            <div class="bonus-item"><label>Sort</label><input type="number" id="pn-sort" value="0" min="-5" max="15" /></div>
-          </div>
+        <div class="perso-footer" style="justify-content:space-between">
+          <button class="btn" id="pn-back-to-list-btn">← Retour</button>
+          <button class="btn primary" id="pn-save-btn">Créer et jouer →</button>
         </div>
       </div>
-      <div class="perso-footer">
-        <button class="btn primary" id="pn-save-btn" style="padding:10px 28px">Entrer dans l'aventure →</button>
+
+      <!-- Step 3: edit existing character -->
+      <div id="pn-step-edit" style="display:none">
+        <div class="perso-header">
+          <div class="perso-header-title" id="pn-edit-title">✏️ Modifier le personnage</div>
+          <div class="perso-header-sub">Modifie ta fiche, puis joue</div>
+        </div>
+        <div class="perso-body">
+          <input type="hidden" id="pn-edit-id" />
+          <div class="field">
+            <label>Nom du personnage *</label>
+            <input type="text" id="pn-edit-name" maxlength="40" />
+          </div>
+          <div class="field">
+            <label>Classe / Race</label>
+            <input type="text" id="pn-edit-class" maxlength="40" />
+          </div>
+          <div>
+            <div class="nav-section" style="padding-inline:0;margin-bottom:10px">Modificateurs de caractéristiques</div>
+            <div class="bonus-grid">
+              <div class="bonus-item"><label>FOR</label><input type="number" id="pn-edit-for" min="-5" max="10" /></div>
+              <div class="bonus-item"><label>DEX</label><input type="number" id="pn-edit-dex" min="-5" max="10" /></div>
+              <div class="bonus-item"><label>CON</label><input type="number" id="pn-edit-con" min="-5" max="10" /></div>
+              <div class="bonus-item"><label>INT</label><input type="number" id="pn-edit-int" min="-5" max="10" /></div>
+              <div class="bonus-item"><label>SAG</label><input type="number" id="pn-edit-sag" min="-5" max="10" /></div>
+              <div class="bonus-item"><label>CHA</label><input type="number" id="pn-edit-cha" min="-5" max="10" /></div>
+            </div>
+          </div>
+          <div>
+            <div class="nav-section" style="padding-inline:0;margin-bottom:10px">Autres modificateurs</div>
+            <div class="bonus-grid">
+              <div class="bonus-item"><label>Perception</label><input type="number" id="pn-edit-perception" min="-5" max="15" /></div>
+              <div class="bonus-item"><label>Attaque</label><input type="number" id="pn-edit-attaque" min="-5" max="15" /></div>
+              <div class="bonus-item"><label>Sort</label><input type="number" id="pn-edit-sort" min="-5" max="15" /></div>
+            </div>
+          </div>
+        </div>
+        <div class="perso-footer" style="justify-content:space-between">
+          <button class="btn" id="pn-back-to-list2-btn">← Retour</button>
+          <button class="btn primary" id="pn-update-btn">Sauvegarder et jouer →</button>
+        </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -1201,9 +1302,24 @@ function setupLogin() {
     showPlayerNameScreen();
   });
 
-  document.getElementById('pn-save-btn').addEventListener('click', savePlayerName);
+  document.getElementById('pn-new-btn').addEventListener('click', () => {
+    // Reset create form
+    ['pn-char-name','pn-char-class'].forEach(id => document.getElementById(id).value = '');
+    ['pn-for','pn-dex','pn-con','pn-int','pn-sag','pn-cha','pn-perception','pn-attaque','pn-sort']
+      .forEach(id => document.getElementById(id).value = '0');
+    showPlayerStep('pn-step-create');
+    document.getElementById('pn-char-name').focus();
+  });
+  document.getElementById('pn-back-btn').addEventListener('click', () => {
+    document.getElementById('player-name-screen').classList.remove('active');
+    document.getElementById('login-screen').classList.add('active');
+  });
+  document.getElementById('pn-back-to-list-btn').addEventListener('click', () => showPlayerStep('pn-step-choose'));
+  document.getElementById('pn-back-to-list2-btn').addEventListener('click', () => showPlayerStep('pn-step-choose'));
+  document.getElementById('pn-save-btn').addEventListener('click', createNewProfile);
+  document.getElementById('pn-update-btn').addEventListener('click', updateProfile);
   document.getElementById('pn-char-name').addEventListener('keydown', e => {
-    if (e.key === 'Enter') savePlayerName();
+    if (e.key === 'Enter') createNewProfile();
   });
 }
 
@@ -1217,43 +1333,99 @@ function doLogin() {
   }
 }
 
-function showPlayerNameScreen() {
-  // Try to restore saved profile from localStorage
-  try {
-    const saved = localStorage.getItem('player_profile');
-    if (saved) {
-      const p = JSON.parse(saved);
-      if (p && p.char_name) {
-        playerProfile = p;
-        enterApp();
-        return;
-      }
-    }
-  } catch(e) {}
-  document.getElementById('login-screen').classList.remove('active');
-  document.getElementById('player-name-screen').classList.add('active');
-  document.getElementById('pn-char-name').focus();
+// ─────────────────────────────────────────────
+// PLAYER SELECT SCREEN
+// ─────────────────────────────────────────────
+let allProfiles = []; // cached list from Supabase
+
+function showPlayerStep(step) {
+  ['pn-step-choose','pn-step-create','pn-step-edit'].forEach(id => {
+    document.getElementById(id).style.display = id === step ? '' : 'none';
+  });
 }
 
-async function savePlayerName() {
+async function showPlayerNameScreen() {
+  document.getElementById('login-screen').classList.remove('active');
+  document.getElementById('player-name-screen').classList.add('active');
+  showPlayerStep('pn-step-choose');
+
+  const sub = document.getElementById('pn-choose-sub');
+  const list = document.getElementById('pn-char-list');
+  sub.textContent = 'Chargement des personnages…';
+  list.innerHTML = '';
+
+  // Load profiles from Supabase
+  if (sb) {
+    try {
+      const { data } = await sb.from('player_profiles').select('*').order('char_name');
+      allProfiles = data || [];
+    } catch(e) { allProfiles = []; }
+  }
+
+  if (allProfiles.length === 0) {
+    sub.textContent = 'Aucun personnage créé — commence par en créer un !';
+  } else {
+    sub.textContent = 'Choisis ton personnage :';
+    allProfiles.forEach(p => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:8px;align-items:center';
+
+      const btn = document.createElement('button');
+      btn.className = 'char-pick-btn';
+      btn.style.flex = '1';
+      btn.innerHTML = `<div>
+        <div class="char-pick-name">${escHtml(p.char_name)}</div>
+        ${p.char_class ? `<div class="char-pick-class">${escHtml(p.char_class)}</div>` : ''}
+      </div><span style="color:var(--fg-muted);font-size:0.85rem">Jouer →</span>`;
+      btn.addEventListener('click', () => selectProfile(p));
+
+      const editBtn = document.createElement('button');
+      editBtn.className = 'char-pick-edit';
+      editBtn.textContent = '✏️';
+      editBtn.title = 'Modifier';
+      editBtn.addEventListener('click', e => { e.stopPropagation(); openEditProfile(p); });
+
+      row.appendChild(btn);
+      row.appendChild(editBtn);
+      list.appendChild(row);
+    });
+  }
+}
+
+function selectProfile(p) {
+  playerProfile = p;
+  document.getElementById('player-name-screen').classList.remove('active');
+  enterApp();
+}
+
+function openEditProfile(p) {
+  showPlayerStep('pn-step-edit');
+  document.getElementById('pn-edit-id').value = p.id;
+  document.getElementById('pn-edit-title').textContent = '✏️ ' + p.char_name;
+  document.getElementById('pn-edit-name').value = p.char_name;
+  document.getElementById('pn-edit-class').value = p.char_class || '';
+  document.getElementById('pn-edit-for').value = p.bonus_for || 0;
+  document.getElementById('pn-edit-dex').value = p.bonus_dex || 0;
+  document.getElementById('pn-edit-con').value = p.bonus_con || 0;
+  document.getElementById('pn-edit-int').value = p.bonus_int || 0;
+  document.getElementById('pn-edit-sag').value = p.bonus_sag || 0;
+  document.getElementById('pn-edit-cha').value = p.bonus_cha || 0;
+  document.getElementById('pn-edit-perception').value = p.bonus_perception || 0;
+  document.getElementById('pn-edit-attaque').value = p.bonus_attaque || 0;
+  document.getElementById('pn-edit-sort').value = p.bonus_sort || 0;
+}
+
+async function createNewProfile() {
   const name = document.getElementById('pn-char-name').value.trim();
   if (!name) {
-    document.getElementById('pn-char-name').focus();
     document.getElementById('pn-char-name').style.outline = '2px solid var(--accent-2)';
+    document.getElementById('pn-char-name').focus();
     return;
   }
   document.getElementById('pn-char-name').style.outline = '';
 
-  // Build session key (persists this player across refreshes)
-  let sessionKey;
-  try { sessionKey = localStorage.getItem('dnd_session_key'); } catch(e) {}
-  if (!sessionKey) {
-    sessionKey = 'player_' + Math.random().toString(36).slice(2,10) + '_' + Date.now();
-    try { localStorage.setItem('dnd_session_key', sessionKey); } catch(e) {}
-  }
-
   const profile = {
-    session_key: sessionKey,
+    session_key: 'player_' + Math.random().toString(36).slice(2,10),
     char_name: name,
     char_class: document.getElementById('pn-char-class').value.trim(),
     bonus_for: parseInt(document.getElementById('pn-for').value) || 0,
@@ -1267,16 +1439,49 @@ async function savePlayerName() {
     bonus_sort: parseInt(document.getElementById('pn-sort').value) || 0,
   };
 
-  playerProfile = profile;
-  try { localStorage.setItem('player_profile', JSON.stringify(profile)); } catch(e) {}
-
-  // Save to Supabase (upsert by session_key)
   if (sb) {
     try {
-      await sb.from('player_profiles').upsert(profile, { onConflict: 'session_key' });
-    } catch(e) { console.warn('Save profile failed:', e); }
+      const { data } = await sb.from('player_profiles').insert(profile).select().single();
+      if (data) profile.id = data.id;
+    } catch(e) { console.warn('Insert profile failed:', e); }
   }
 
+  playerProfile = profile;
+  document.getElementById('player-name-screen').classList.remove('active');
+  enterApp();
+}
+
+async function updateProfile() {
+  const id = document.getElementById('pn-edit-id').value;
+  const name = document.getElementById('pn-edit-name').value.trim();
+  if (!name) {
+    document.getElementById('pn-edit-name').style.outline = '2px solid var(--accent-2)';
+    document.getElementById('pn-edit-name').focus();
+    return;
+  }
+  document.getElementById('pn-edit-name').style.outline = '';
+
+  const updates = {
+    char_name: name,
+    char_class: document.getElementById('pn-edit-class').value.trim(),
+    bonus_for: parseInt(document.getElementById('pn-edit-for').value) || 0,
+    bonus_dex: parseInt(document.getElementById('pn-edit-dex').value) || 0,
+    bonus_con: parseInt(document.getElementById('pn-edit-con').value) || 0,
+    bonus_int: parseInt(document.getElementById('pn-edit-int').value) || 0,
+    bonus_sag: parseInt(document.getElementById('pn-edit-sag').value) || 0,
+    bonus_cha: parseInt(document.getElementById('pn-edit-cha').value) || 0,
+    bonus_perception: parseInt(document.getElementById('pn-edit-perception').value) || 0,
+    bonus_attaque: parseInt(document.getElementById('pn-edit-attaque').value) || 0,
+    bonus_sort: parseInt(document.getElementById('pn-edit-sort').value) || 0,
+  };
+
+  if (sb) {
+    try {
+      await sb.from('player_profiles').update(updates).eq('id', id);
+    } catch(e) { console.warn('Update profile failed:', e); }
+  }
+
+  playerProfile = { ...updates, id };
   document.getElementById('player-name-screen').classList.remove('active');
   enterApp();
 }
@@ -1419,23 +1624,28 @@ function renderPersoPanel() {
 
 function openPersoEdit() {
   if (!playerProfile) return;
-  const p = playerProfile;
-  // Prefill and show the player name screen as an edit modal
-  document.getElementById('pn-char-name').value = p.char_name || '';
-  document.getElementById('pn-char-class').value = p.char_class || '';
-  document.getElementById('pn-for').value = p.bonus_for || 0;
-  document.getElementById('pn-dex').value = p.bonus_dex || 0;
-  document.getElementById('pn-con').value = p.bonus_con || 0;
-  document.getElementById('pn-int').value = p.bonus_int || 0;
-  document.getElementById('pn-sag').value = p.bonus_sag || 0;
-  document.getElementById('pn-cha').value = p.bonus_cha || 0;
-  document.getElementById('pn-perception').value = p.bonus_perception || 0;
-  document.getElementById('pn-attaque').value = p.bonus_attaque || 0;
-  document.getElementById('pn-sort').value = p.bonus_sort || 0;
-
-  // Show the player name screen on top of app
+  // Open edit form for current profile, then come back to app
+  openEditProfile(playerProfile);
   document.getElementById('player-name-screen').classList.add('active');
   document.getElementById('app-screen').classList.remove('active');
+  // Override back button to return to app instead of list
+  const backBtn = document.getElementById('pn-back-to-list2-btn');
+  backBtn.textContent = '← Annuler';
+  backBtn.onclick = () => {
+    backBtn.textContent = '← Retour';
+    backBtn.onclick = null;
+    document.getElementById('player-name-screen').classList.remove('active');
+    document.getElementById('app-screen').classList.add('active');
+  };
+  // Override save to also go back to app
+  const saveBtn = document.getElementById('pn-update-btn');
+  const origOnclick = saveBtn.onclick;
+  saveBtn.onclick = async () => {
+    await updateProfile();
+    renderPersoPanel(); // refresh panel in app
+    backBtn.textContent = '← Retour';
+    backBtn.onclick = null;
+  };
 }
 
 // ─────────────────────────────────────────────
