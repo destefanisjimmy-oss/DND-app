@@ -653,6 +653,121 @@ html, body {
 }
 .char-edit-btn:hover { color: var(--fg); }
 
+/* ── CARTE TACTIQUE ── */
+.map-container {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 16px;
+  background: var(--bg);
+  cursor: grab;
+  position: relative;
+}
+.map-container:active { cursor: grabbing; }
+.map-grid-wrap {
+  position: relative;
+  flex-shrink: 0;
+  user-select: none;
+}
+.map-grid {
+  display: grid;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+}
+.map-cell {
+  border-right: 1px solid rgba(201,162,39,0.12);
+  border-bottom: 1px solid rgba(201,162,39,0.12);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  color: transparent;
+  transition: background 0.1s;
+  cursor: pointer;
+}
+.map-cell:hover { background: rgba(201,162,39,0.08); color: var(--fg-muted); }
+.map-cell.wall { background: #1a1209; }
+.map-cell.difficult { background: rgba(142,68,173,0.15); }
+.map-cell.trap { background: rgba(192,57,43,0.15); }
+.map-cell.door { background: rgba(201,162,39,0.12); }
+.map-cell.selected-cell { outline: 2px solid var(--gold); outline-offset: -2px; }
+
+/* Tokens sur la grille */
+.map-token {
+  position: absolute;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: var(--font-title);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  line-height: 1;
+  overflow: hidden;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  pointer-events: all;
+  border: 2px solid rgba(255,255,255,0.25);
+}
+.map-token:hover { transform: scale(1.15); box-shadow: 0 4px 16px rgba(0,0,0,0.8); }
+.map-token.active-turn { border-color: var(--gold); box-shadow: 0 0 12px var(--gold), 0 2px 8px rgba(0,0,0,0.7); }
+.map-token.type-player { background: radial-gradient(circle at 35% 35%, #3a8fd4, #1a4a7a); }
+.map-token.type-enemy  { background: radial-gradient(circle at 35% 35%, #c0392b, #7a1a1a); }
+.map-token.type-npc    { background: radial-gradient(circle at 35% 35%, #8e44ad, #4a1a6a); }
+.map-token.type-ally   { background: radial-gradient(circle at 35% 35%, #27ae60, #0f5c30); }
+.map-token.dead        { opacity: 0.35; filter: grayscale(1); }
+.map-token.dragging    { opacity: 0.7; transform: scale(1.2); z-index: 100; }
+
+/* Map toolbar */
+.map-toolbar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.map-tool-btn {
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: var(--fg-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.map-tool-btn:hover { background: var(--bg-4); color: var(--fg); }
+.map-tool-btn.active { background: var(--accent-glow); color: var(--fg); border-color: var(--accent); }
+.map-tool-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+
+/* Légende des terrains */
+.terrain-legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.72rem;
+  color: var(--fg-muted);
+}
+.terrain-swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.terrain-swatch-dot {
+  width: 12px; height: 12px;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+}
+
 /* Boutons de sélection de perso */
 .char-pick-btn {
   width: 100%;
@@ -967,6 +1082,10 @@ html, body {
     <button class="nav-btn" data-view="dice">
       <span class="nav-icon">🎲</span><span>Dés</span>
     </button>
+    <div class="nav-section">Carte</div>
+    <button class="nav-btn" data-view="map">
+      <span class="nav-icon">🗺️</span><span>Carte</span>
+    </button>
     <div class="nav-section">Lore</div>
     <button class="nav-btn" data-view="notes">
       <span class="nav-icon">📜</span><span>Notes</span>
@@ -1069,6 +1188,34 @@ html, body {
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- MAP VIEW -->
+    <div class="panel-view" id="view-map" style="overflow:hidden">
+      <div class="panel-header">
+        <span class="panel-title">🗺️ Carte Tactique</span>
+        <div class="map-toolbar" id="map-toolbar">
+          <!-- DM tools injected by JS -->
+        </div>
+      </div>
+      <!-- Terrain legend -->
+      <div style="padding:6px 20px;border-bottom:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:0.68rem;color:var(--fg-muted);text-transform:uppercase;letter-spacing:0.1em">Terrain :</span>
+        <div class="terrain-legend" id="terrain-legend-bar">
+          <span class="terrain-swatch"><span class="terrain-swatch-dot" style="background:#1a1612"></span>Normal</span>
+          <span class="terrain-swatch"><span class="terrain-swatch-dot" style="background:#1a1209;border-color:#4a3a20"></span>Mur</span>
+          <span class="terrain-swatch"><span class="terrain-swatch-dot" style="background:rgba(142,68,173,0.3)"></span>Difficile</span>
+          <span class="terrain-swatch"><span class="terrain-swatch-dot" style="background:rgba(192,57,43,0.3)"></span>Piège</span>
+          <span class="terrain-swatch"><span class="terrain-swatch-dot" style="background:rgba(201,162,39,0.2)"></span>Porte</span>
+        </div>
+        <div id="map-tool-hint" style="margin-left:auto;font-size:0.72rem;color:var(--fg-muted);font-style:italic"></div>
+      </div>
+      <div class="map-container" id="map-container">
+        <div class="map-grid-wrap" id="map-grid-wrap">
+          <div class="map-grid" id="map-grid"></div>
+          <!-- tokens rendered on top by JS -->
+        </div>
       </div>
     </div>
 
@@ -1257,7 +1404,14 @@ const CONDITIONS = [
 let sb, isDM = false, currentRound = 1, activeTurnId = null;
 let combatants = [], notes = [];
 let editingCombatantId = null, editingNoteId = null;
-let playerProfile = null; // { id, session_key, char_name, char_class, for, dex, con, int, sag, cha, perception, attaque, sort }
+let playerProfile = null;
+// Map state
+let mapCells = {}; // { "x,y": terrainType } persisted to Supabase
+let mapTokens = {}; // { combatantId: {x, y} } persisted to Supabase
+let mapCols = 20, mapRows = 16, mapCellPx = 40;
+let mapActiveTool = 'move'; // 'move'|'wall'|'difficult'|'trap'|'door'|'erase'
+let mapDraggingToken = null; // { id, startX, startY, el }
+let mapInitialized = false;
 
 // ─────────────────────────────────────────────
 // INIT
@@ -1655,7 +1809,7 @@ async function initSupabase() {
   setConnStatus(false);
 
   // Load initial data
-  await Promise.all([loadCombat(), loadNotes()]);
+  await Promise.all([loadCombat(), loadNotes(), loadMapState()]);
 
   // Load initial dice history
   await loadRolls();
@@ -1671,11 +1825,293 @@ async function initSupabase() {
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'dice_rolls' }, payload => {
       handleRollInsert(payload.new);
     })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'map_state' }, payload => {
+      handleMapChange(payload);
+    })
     .subscribe(status => {
       setConnStatus(status === 'SUBSCRIBED');
     });
 }
 
+// ─────────────────────────────────────────────
+// CARTE TACTIQUE
+// ─────────────────────────────────────────────
+function setupMap() {
+  if (mapInitialized) return;
+  mapInitialized = true;
+
+  buildGrid();
+  renderMapToolbar();
+
+  // Pan via drag on container
+  const container = document.getElementById('map-container');
+  let panStart = null;
+  container.addEventListener('mousedown', e => {
+    if (e.target === container || e.target.id === 'map-grid-wrap') {
+      panStart = { x: e.clientX + container.scrollLeft, y: e.clientY + container.scrollTop };
+    }
+  });
+  container.addEventListener('mousemove', e => {
+    if (!panStart) return;
+    container.scrollLeft = panStart.x - e.clientX;
+    container.scrollTop = panStart.y - e.clientY;
+  });
+  container.addEventListener('mouseup', () => { panStart = null; });
+  container.addEventListener('mouseleave', () => { panStart = null; });
+}
+
+function buildGrid() {
+  const grid = document.getElementById('map-grid');
+  const wrap = document.getElementById('map-grid-wrap');
+  const total = mapCols * mapRows;
+  const px = mapCellPx;
+
+  grid.style.gridTemplateColumns = `repeat(${mapCols}, ${px}px)`;
+  grid.style.width = `${mapCols * px}px`;
+  grid.style.height = `${mapRows * px}px`;
+  wrap.style.width = `${mapCols * px}px`;
+  wrap.style.height = `${mapRows * px}px`;
+
+  grid.innerHTML = '';
+  for (let r = 0; r < mapRows; r++) {
+    for (let c = 0; c < mapCols; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'map-cell';
+      cell.style.width = px + 'px';
+      cell.style.height = px + 'px';
+      cell.dataset.col = c;
+      cell.dataset.row = r;
+      const terrain = mapCells[`${c},${r}`];
+      if (terrain) cell.classList.add(terrain);
+      // Coord hint on hover
+      cell.title = `${String.fromCharCode(65+c)}${r+1}`;
+      cell.textContent = cell.title;
+
+      cell.addEventListener('mousedown', e => {
+        e.stopPropagation();
+        if (!isDM) return;
+        if (mapActiveTool !== 'move') {
+          paintCell(cell, c, r);
+        }
+      });
+      cell.addEventListener('mouseenter', e => {
+        if (!isDM) return;
+        if (e.buttons === 1 && mapActiveTool !== 'move') paintCell(cell, c, r);
+        // Drop zone highlight when dragging token
+        if (mapDraggingToken) cell.style.background = 'rgba(201,162,39,0.2)';
+      });
+      cell.addEventListener('mouseleave', () => {
+        if (!mapDraggingToken) return;
+        const terrain = mapCells[`${c},${r}`];
+        cell.style.background = '';
+      });
+      cell.addEventListener('mouseup', e => {
+        if (mapDraggingToken) {
+          dropToken(mapDraggingToken, c, r);
+          e.stopPropagation();
+        }
+      });
+      grid.appendChild(cell);
+    }
+  }
+  renderMapTokens();
+}
+
+function paintCell(cell, c, r) {
+  const key = `${c},${r}`;
+  const terrain = mapActiveTool === 'erase' ? null : mapActiveTool;
+  // Remove old terrain classes
+  ['wall','difficult','trap','door'].forEach(t => cell.classList.remove(t));
+  if (terrain) {
+    cell.classList.add(terrain);
+    mapCells[key] = terrain;
+  } else {
+    delete mapCells[key];
+  }
+  // Sync to Supabase (debounced)
+  clearTimeout(paintCell._timer);
+  paintCell._timer = setTimeout(() => saveMapCells(), 600);
+}
+
+async function saveMapCells() {
+  if (!sb) return;
+  try {
+    await sb.from('map_state').upsert({ id: 'cells', data: mapCells }, { onConflict: 'id' });
+  } catch(e) { console.warn('Map cells save failed:', e); }
+}
+
+async function saveMapTokens() {
+  if (!sb) return;
+  try {
+    await sb.from('map_state').upsert({ id: 'tokens', data: mapTokens }, { onConflict: 'id' });
+  } catch(e) { console.warn('Map tokens save failed:', e); }
+}
+
+async function loadMapState() {
+  if (!sb) return;
+  try {
+    const { data } = await sb.from('map_state').select('*');
+    if (data) {
+      data.forEach(row => {
+        if (row.id === 'cells') mapCells = row.data || {};
+        if (row.id === 'tokens') mapTokens = row.data || {};
+      });
+    }
+  } catch(e) { console.warn('Map load failed:', e); }
+  if (mapInitialized) {
+    refreshGridTerrain();
+    renderMapTokens();
+  }
+}
+
+function handleMapChange(payload) {
+  const row = payload.new || payload.old;
+  if (!row) return;
+  if (row.id === 'cells') { mapCells = row.data || {}; refreshGridTerrain(); }
+  if (row.id === 'tokens') { mapTokens = row.data || {}; renderMapTokens(); }
+}
+
+function refreshGridTerrain() {
+  document.querySelectorAll('.map-cell').forEach(cell => {
+    const c = parseInt(cell.dataset.col), r = parseInt(cell.dataset.row);
+    ['wall','difficult','trap','door'].forEach(t => cell.classList.remove(t));
+    const terrain = mapCells[`${c},${r}`];
+    if (terrain) cell.classList.add(terrain);
+  });
+}
+
+function renderMapTokens() {
+  // Remove all token elements
+  document.querySelectorAll('.map-token').forEach(el => el.remove());
+
+  const wrap = document.getElementById('map-grid-wrap');
+  if (!wrap) return;
+  const px = mapCellPx;
+
+  // Place one token per combatant that has a position
+  combatants.forEach(c => {
+    const pos = mapTokens[c.id];
+    if (!pos) return;
+
+    const el = document.createElement('div');
+    el.className = `map-token type-${c.type}` + (c.is_active ? ' active-turn' : '') + (c.hp_current <= 0 ? ' dead' : '');
+    el.dataset.id = c.id;
+    // Size: 80% of cell
+    const size = Math.round(px * 0.82);
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    el.style.left = (pos.x * px + (px - size) / 2) + 'px';
+    el.style.top  = (pos.y * px + (px - size) / 2) + 'px';
+    // Initials
+    const initials = c.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    el.textContent = initials;
+    el.title = `${c.name} (${c.hp_current}/${c.hp_max} PV)`;
+
+    if (isDM) {
+      el.addEventListener('mousedown', e => {
+        e.stopPropagation();
+        mapDraggingToken = { id: c.id, el };
+        el.classList.add('dragging');
+        document.getElementById('map-tool-hint').textContent = `Déplacer ${c.name}…`;
+      });
+    }
+
+    wrap.appendChild(el);
+  });
+
+  // Global mouseup to cancel drag
+  document.removeEventListener('mouseup', cancelTokenDrag);
+  document.addEventListener('mouseup', cancelTokenDrag);
+}
+
+function cancelTokenDrag() {
+  if (!mapDraggingToken) return;
+  mapDraggingToken.el.classList.remove('dragging');
+  mapDraggingToken = null;
+  document.getElementById('map-tool-hint').textContent = '';
+}
+
+function dropToken(drag, col, row) {
+  drag.el.classList.remove('dragging');
+  mapDraggingToken = null;
+  document.getElementById('map-tool-hint').textContent = '';
+
+  mapTokens[drag.id] = { x: col, y: row };
+  renderMapTokens();
+  saveMapTokens();
+}
+
+function renderMapToolbar() {
+  const tb = document.getElementById('map-toolbar');
+  if (!tb) return;
+
+  if (!isDM) {
+    tb.innerHTML = '<span style="font-size:0.75rem;color:var(--fg-muted)">Vue lecture seule · Le MJ contrôle la carte</span>';
+    return;
+  }
+
+  const tools = [
+    { id: 'move',      icon: '↖️', label: 'Déplacer tokens' },
+    { id: 'wall',      icon: '🧱', label: 'Mur' },
+    { id: 'difficult', icon: '🌿', label: 'Terrain difficile' },
+    { id: 'trap',      icon: '⚠️',  label: 'Piège' },
+    { id: 'door',      icon: '🚪', label: 'Porte' },
+    { id: 'erase',     icon: '✕',  label: 'Effacer terrain' },
+  ];
+
+  tb.innerHTML = '';
+  tools.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'map-tool-btn' + (t.id === mapActiveTool ? ' active' : '');
+    btn.innerHTML = `${t.icon} ${t.label}`;
+    btn.dataset.tool = t.id;
+    btn.addEventListener('click', () => {
+      mapActiveTool = t.id;
+      tb.querySelectorAll('.map-tool-btn').forEach(b => b.classList.toggle('active', b.dataset.tool === t.id));
+      const hints = { move:'Glisse un token sur la grille', wall:'Clique/glisse pour tracer des murs', difficult:'Terrain difficile (mouvement ×2)', trap:'Zone de piège', door:'Porte', erase:'Efface le terrain' };
+      document.getElementById('map-tool-hint').textContent = hints[t.id] || '';
+    });
+    tb.appendChild(btn);
+  });
+
+  // Separator + clear + resize
+  const sep = document.createElement('div'); sep.className = 'map-tool-sep'; tb.appendChild(sep);
+
+  const placeBtn = document.createElement('button');
+  placeBtn.className = 'map-tool-btn';
+  placeBtn.textContent = '📌 Placer combattants';
+  placeBtn.addEventListener('click', placeAllTokens);
+  tb.appendChild(placeBtn);
+
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'map-tool-btn';
+  clearBtn.style.color = 'var(--accent-2)';
+  clearBtn.textContent = '🗑 Tout effacer';
+  clearBtn.addEventListener('click', async () => {
+    if (!confirm('Effacer toute la carte ?')) return;
+    mapCells = {}; mapTokens = {};
+    refreshGridTerrain();
+    renderMapTokens();
+    await saveMapCells();
+    await saveMapTokens();
+  });
+  tb.appendChild(clearBtn);
+}
+
+function placeAllTokens() {
+  // Auto-place combatants on grid in a row
+  let col = 1;
+  combatants.forEach(c => {
+    if (!mapTokens[c.id]) {
+      mapTokens[c.id] = { x: col, y: 1 };
+      col = (col + 2) % (mapCols - 1);
+    }
+  });
+  renderMapTokens();
+  saveMapTokens();
+}
+
+// ─────────────────────────────────────────────
 function setConnStatus(connected) {
   document.getElementById('conn-dot').className = 'connection-dot' + (connected ? ' connected' : '');
   document.getElementById('conn-status').textContent = connected ? 'Connecté' : 'Connexion…';
@@ -1708,6 +2144,7 @@ function handleCombatChange(payload) {
     combatants = combatants.filter(c => c.id !== payload.old.id);
   }
   renderCombat();
+  if (mapInitialized) renderMapTokens();
 }
 
 function renderCombat() {
@@ -2089,6 +2526,7 @@ function setupNavigation() {
       const view = btn.dataset.view;
       document.querySelectorAll('.panel-view').forEach(v => v.classList.remove('active'));
       document.getElementById(`view-${view}`).classList.add('active');
+      if (view === 'map') setupMap();
     });
   });
 }
