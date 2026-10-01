@@ -553,6 +553,125 @@ html, body {
 
 .note-actions { display: flex; gap: 4px; flex-shrink: 0; }
 
+/* ── FICHE PERSO ── */
+.perso-screen {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: radial-gradient(ellipse at center, #1a1208 0%, #0a0806 100%);
+  flex-direction: column;
+  gap: 0;
+}
+.perso-screen.active { display: flex; }
+.perso-box {
+  width: min(500px, 92vw);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+.perso-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-3);
+}
+.perso-header-title {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+.perso-header-sub { font-size: 0.75rem; color: var(--fg-muted); margin-top: 3px; }
+.perso-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.perso-footer {
+  padding: 14px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+}
+.bonus-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.bonus-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bonus-item label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fg-muted);
+}
+.bonus-item input {
+  padding: 8px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  text-align: center;
+  width: 100%;
+}
+.bonus-item input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+/* Fiche sidebar joueur */
+.char-card {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin: 8px;
+}
+.char-name {
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  color: var(--gold);
+  letter-spacing: 0.03em;
+}
+.char-class { font-size: 0.72rem; color: var(--fg-muted); margin-top: 1px; }
+.char-edit-btn {
+  font-size: 0.68rem;
+  color: var(--fg-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 0;
+  text-decoration: underline;
+}
+.char-edit-btn:hover { color: var(--fg); }
+
+/* Bonus rapides dans les dés */
+.bonus-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.bonus-tag {
+  padding: 5px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: var(--fg-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-variant-numeric: tabular-nums;
+}
+.bonus-tag:hover { background: var(--bg-4); color: var(--fg); border-color: var(--gold-dim); }
+
 /* ── HP EDIT POPUP ── */
 .hp-popup {
   position: fixed;
@@ -687,6 +806,50 @@ html, body {
   </div>
 </div>
 
+<!-- PLAYER NAME SCREEN -->
+<div id="player-name-screen" class="screen">
+  <div class="perso-screen active" style="height:100%">
+    <div class="perso-box">
+      <div class="perso-header">
+        <div class="perso-header-title">⚔️ Qui êtes-vous ?</div>
+        <div class="perso-header-sub">Entrez les informations de votre personnage avant d'entrer</div>
+      </div>
+      <div class="perso-body">
+        <div class="field">
+          <label>Nom du personnage *</label>
+          <input type="text" id="pn-char-name" placeholder="Éowyn, Thorin, Aragorn…" maxlength="40" />
+        </div>
+        <div class="field">
+          <label>Classe / Race</label>
+          <input type="text" id="pn-char-class" placeholder="Guerrier Nain, Mage Elfe…" maxlength="40" />
+        </div>
+        <div>
+          <div class="nav-section" style="padding-inline:0;margin-bottom:10px">Modificateurs de caractéristiques</div>
+          <div class="bonus-grid">
+            <div class="bonus-item"><label>FOR</label><input type="number" id="pn-for" value="0" min="-5" max="10" /></div>
+            <div class="bonus-item"><label>DEX</label><input type="number" id="pn-dex" value="0" min="-5" max="10" /></div>
+            <div class="bonus-item"><label>CON</label><input type="number" id="pn-con" value="0" min="-5" max="10" /></div>
+            <div class="bonus-item"><label>INT</label><input type="number" id="pn-int" value="0" min="-5" max="10" /></div>
+            <div class="bonus-item"><label>SAG</label><input type="number" id="pn-sag" value="0" min="-5" max="10" /></div>
+            <div class="bonus-item"><label>CHA</label><input type="number" id="pn-cha" value="0" min="-5" max="10" /></div>
+          </div>
+        </div>
+        <div>
+          <div class="nav-section" style="padding-inline:0;margin-bottom:10px">Autres modificateurs</div>
+          <div class="bonus-grid">
+            <div class="bonus-item"><label>Perception</label><input type="number" id="pn-perception" value="0" min="-5" max="15" /></div>
+            <div class="bonus-item"><label>Attaque</label><input type="number" id="pn-attaque" value="0" min="-5" max="15" /></div>
+            <div class="bonus-item"><label>Sort</label><input type="number" id="pn-sort" value="0" min="-5" max="15" /></div>
+          </div>
+        </div>
+      </div>
+      <div class="perso-footer">
+        <button class="btn primary" id="pn-save-btn" style="padding:10px 28px">Entrer dans l'aventure →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- APP SCREEN -->
 <div id="app-screen" class="screen">
   <!-- Sidebar -->
@@ -706,6 +869,10 @@ html, body {
     <div class="nav-section">Lore</div>
     <button class="nav-btn" data-view="notes">
       <span class="nav-icon">📜</span><span>Notes</span>
+    </button>
+    <div class="nav-section player-only" style="display:none">Personnage</div>
+    <button class="nav-btn player-only" data-view="perso" style="display:none">
+      <span class="nav-icon">🧙</span><span>Fiche Perso</span>
     </button>
     <div class="sidebar-footer">
       <span class="connection-dot" id="conn-dot"></span>
@@ -783,6 +950,11 @@ html, body {
               <button class="btn" id="roll-dis-btn" style="flex:1">↓ Désavant.</button>
             </div>
           </div>
+
+          <div id="dice-bonus-section" style="display:none">
+            <div class="nav-section" style="padding-inline:0;margin-bottom:8px">Mes lancers de perso</div>
+            <div class="bonus-quick" id="dice-bonus-tags"></div>
+          </div>
         </div>
 
         <!-- Historique -->
@@ -812,6 +984,17 @@ html, body {
             <div>Aucune note pour l'instant.</div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- PERSO VIEW -->
+    <div class="panel-view" id="view-perso">
+      <div class="panel-header">
+        <span class="panel-title">🧙 Fiche de Personnage</span>
+        <button class="btn sm" id="perso-edit-btn">✏️ Modifier</button>
+      </div>
+      <div class="panel-body" id="perso-panel-body">
+        <!-- filled by renderPersoPanel() -->
       </div>
     </div>
 
@@ -973,6 +1156,7 @@ const CONDITIONS = [
 let sb, isDM = false, currentRound = 1, activeTurnId = null;
 let combatants = [], notes = [];
 let editingCombatantId = null, editingNoteId = null;
+let playerProfile = null; // { id, session_key, char_name, char_class, for, dex, con, int, sag, cha, perception, attaque, sort }
 
 // ─────────────────────────────────────────────
 // INIT
@@ -1014,7 +1198,12 @@ function setupLogin() {
 
   document.getElementById('player-login-btn').addEventListener('click', () => {
     isDM = false;
-    enterApp();
+    showPlayerNameScreen();
+  });
+
+  document.getElementById('pn-save-btn').addEventListener('click', savePlayerName);
+  document.getElementById('pn-char-name').addEventListener('keydown', e => {
+    if (e.key === 'Enter') savePlayerName();
   });
 }
 
@@ -1028,17 +1217,88 @@ function doLogin() {
   }
 }
 
+function showPlayerNameScreen() {
+  // Try to restore saved profile from localStorage
+  try {
+    const saved = localStorage.getItem('player_profile');
+    if (saved) {
+      const p = JSON.parse(saved);
+      if (p && p.char_name) {
+        playerProfile = p;
+        enterApp();
+        return;
+      }
+    }
+  } catch(e) {}
+  document.getElementById('login-screen').classList.remove('active');
+  document.getElementById('player-name-screen').classList.add('active');
+  document.getElementById('pn-char-name').focus();
+}
+
+async function savePlayerName() {
+  const name = document.getElementById('pn-char-name').value.trim();
+  if (!name) {
+    document.getElementById('pn-char-name').focus();
+    document.getElementById('pn-char-name').style.outline = '2px solid var(--accent-2)';
+    return;
+  }
+  document.getElementById('pn-char-name').style.outline = '';
+
+  // Build session key (persists this player across refreshes)
+  let sessionKey;
+  try { sessionKey = localStorage.getItem('dnd_session_key'); } catch(e) {}
+  if (!sessionKey) {
+    sessionKey = 'player_' + Math.random().toString(36).slice(2,10) + '_' + Date.now();
+    try { localStorage.setItem('dnd_session_key', sessionKey); } catch(e) {}
+  }
+
+  const profile = {
+    session_key: sessionKey,
+    char_name: name,
+    char_class: document.getElementById('pn-char-class').value.trim(),
+    bonus_for: parseInt(document.getElementById('pn-for').value) || 0,
+    bonus_dex: parseInt(document.getElementById('pn-dex').value) || 0,
+    bonus_con: parseInt(document.getElementById('pn-con').value) || 0,
+    bonus_int: parseInt(document.getElementById('pn-int').value) || 0,
+    bonus_sag: parseInt(document.getElementById('pn-sag').value) || 0,
+    bonus_cha: parseInt(document.getElementById('pn-cha').value) || 0,
+    bonus_perception: parseInt(document.getElementById('pn-perception').value) || 0,
+    bonus_attaque: parseInt(document.getElementById('pn-attaque').value) || 0,
+    bonus_sort: parseInt(document.getElementById('pn-sort').value) || 0,
+  };
+
+  playerProfile = profile;
+  try { localStorage.setItem('player_profile', JSON.stringify(profile)); } catch(e) {}
+
+  // Save to Supabase (upsert by session_key)
+  if (sb) {
+    try {
+      await sb.from('player_profiles').upsert(profile, { onConflict: 'session_key' });
+    } catch(e) { console.warn('Save profile failed:', e); }
+  }
+
+  document.getElementById('player-name-screen').classList.remove('active');
+  enterApp();
+}
+
 function enterApp() {
   document.getElementById('login-screen').classList.remove('active');
+  document.getElementById('player-name-screen').classList.remove('active');
   document.getElementById('app-screen').classList.add('active');
 
-  document.getElementById('role-label').textContent = isDM ? 'Maître de Donjon' : 'Joueur';
+  document.getElementById('role-label').textContent = isDM ? 'Maître de Donjon' : (playerProfile ? playerProfile.char_name : 'Joueur');
   document.getElementById('role-label').className = 'sidebar-role' + (isDM ? ' dm' : '');
   document.getElementById('dm-combat-toolbar').style.display = isDM ? 'flex' : 'none';
   document.getElementById('add-note-btn').style.display = isDM ? '' : 'none';
 
+  // Show/hide player-only nav items
+  document.querySelectorAll('.player-only').forEach(el => {
+    el.style.display = isDM ? 'none' : '';
+  });
+
   // Setup UI immédiatement — pas besoin de Supabase pour ça
   setupDice();
+  if (!isDM && playerProfile) renderPersoPanel();
 
   // Supabase déjà prêt ?
   if (sb) {
@@ -1051,6 +1311,131 @@ function enterApp() {
       if (sb) { clearInterval(wait); initSupabase(); }
     }, 100);
   }
+}
+
+// ─────────────────────────────────────────────
+// FICHE PERSO
+// ─────────────────────────────────────────────
+function renderPersoPanel() {
+  if (!playerProfile) return;
+  const p = playerProfile;
+  const bonuses = [
+    { key: 'bonus_for', label: 'FOR' },
+    { key: 'bonus_dex', label: 'DEX' },
+    { key: 'bonus_con', label: 'CON' },
+    { key: 'bonus_int', label: 'INT' },
+    { key: 'bonus_sag', label: 'SAG' },
+    { key: 'bonus_cha', label: 'CHA' },
+    { key: 'bonus_perception', label: 'Perception' },
+    { key: 'bonus_attaque', label: 'Attaque' },
+    { key: 'bonus_sort', label: 'Sort' },
+  ];
+  const body = document.getElementById('perso-panel-body');
+  if (!body) return;
+
+  const bonusGridHtml = bonuses.map(b => {
+    const val = p[b.key] || 0;
+    const sign = val >= 0 ? '+' : '';
+    const color = val > 0 ? 'var(--green)' : val < 0 ? 'var(--accent-2)' : 'var(--fg-muted)';
+    return `<div class="bonus-item" style="text-align:center;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 6px">
+      <div style="font-family:var(--font-title);font-size:1.3rem;font-weight:700;color:${color};font-variant-numeric:tabular-nums">${sign}${val}</div>
+      <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--fg-muted);margin-top:4px">${b.label}</div>
+    </div>`;
+  }).join('');
+
+  body.innerHTML = `
+    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px">
+      <div style="font-family:var(--font-title);font-size:1.3rem;color:var(--gold);letter-spacing:0.04em">${escHtml(p.char_name)}</div>
+      ${p.char_class ? `<div style="font-size:0.8rem;color:var(--fg-muted);margin-top:4px">${escHtml(p.char_class)}</div>` : ''}
+    </div>
+    <div>
+      <div class="nav-section" style="padding-inline:0;margin-bottom:10px">Modificateurs</div>
+      <div class="bonus-grid">${bonusGridHtml}</div>
+    </div>
+    <div>
+      <div class="nav-section" style="padding-inline:0;margin-bottom:10px">Lancers rapides d20</div>
+      <div class="bonus-quick" id="bonus-quick-tags"></div>
+    </div>
+  `;
+
+  // Also populate dice view bonus section
+  const diceSection = document.getElementById('dice-bonus-section');
+  const diceTagContainer = document.getElementById('dice-bonus-tags');
+  if (diceSection && diceTagContainer) {
+    diceSection.style.display = '';
+    diceTagContainer.innerHTML = '';
+    bonuses.forEach(b => {
+      const val = p[b.key] || 0;
+      const sign = val >= 0 ? '+' : '';
+      const tag = document.createElement('button');
+      tag.className = 'bonus-tag';
+      tag.textContent = `d20 ${sign}${val} ${b.label}`;
+      tag.addEventListener('click', () => {
+        const die = Math.floor(Math.random() * 20) + 1;
+        const total = die + val;
+        addRoll({
+          roller: p.char_name,
+          formula: `1d20${sign}${val} (${b.label})`,
+          result: total,
+          modifier: val,
+          is_crit: die === 20,
+          is_fumble: die === 1
+        });
+      });
+      diceTagContainer.appendChild(tag);
+    });
+  }
+
+  // Quick roll buttons
+  const tagContainer = document.getElementById('bonus-quick-tags');
+  if (tagContainer) {
+    bonuses.forEach(b => {
+      const val = p[b.key] || 0;
+      const sign = val >= 0 ? '+' : '';
+      const tag = document.createElement('button');
+      tag.className = 'bonus-tag';
+      tag.textContent = `d20 ${sign}${val} ${b.label}`;
+      tag.addEventListener('click', () => {
+        const die = Math.floor(Math.random() * 20) + 1;
+        const total = die + val;
+        addRoll({
+          roller: p.char_name,
+          formula: `1d20${sign}${val} (${b.label})`,
+          result: total,
+          detail: `[${die}]${sign}${val}`,
+          is_crit: die === 20,
+          is_fumble: die === 1,
+          die_type: 20,
+          modifier: val
+        });
+        // Switch to dice view to see result
+        const diceNav = document.querySelector('.nav-btn[data-view="dice"]');
+        if (diceNav) diceNav.click();
+      });
+      tagContainer.appendChild(tag);
+    });
+  }
+}
+
+function openPersoEdit() {
+  if (!playerProfile) return;
+  const p = playerProfile;
+  // Prefill and show the player name screen as an edit modal
+  document.getElementById('pn-char-name').value = p.char_name || '';
+  document.getElementById('pn-char-class').value = p.char_class || '';
+  document.getElementById('pn-for').value = p.bonus_for || 0;
+  document.getElementById('pn-dex').value = p.bonus_dex || 0;
+  document.getElementById('pn-con').value = p.bonus_con || 0;
+  document.getElementById('pn-int').value = p.bonus_int || 0;
+  document.getElementById('pn-sag').value = p.bonus_sag || 0;
+  document.getElementById('pn-cha').value = p.bonus_cha || 0;
+  document.getElementById('pn-perception').value = p.bonus_perception || 0;
+  document.getElementById('pn-attaque').value = p.bonus_attaque || 0;
+  document.getElementById('pn-sort').value = p.bonus_sort || 0;
+
+  // Show the player name screen on top of app
+  document.getElementById('player-name-screen').classList.add('active');
+  document.getElementById('app-screen').classList.remove('active');
 }
 
 // ─────────────────────────────────────────────
@@ -1501,6 +1886,9 @@ function setupNavigation() {
 // ─────────────────────────────────────────────
 // MODALS
 // ─────────────────────────────────────────────
+// Wire perso edit button
+document.getElementById('perso-edit-btn') && document.getElementById('perso-edit-btn').addEventListener('click', openPersoEdit);
+
 function setupModals() {
   document.querySelectorAll('[data-close]').forEach(btn => {
     btn.addEventListener('click', () => closeModal(btn.dataset.close));
@@ -1550,7 +1938,7 @@ function quickRoll(sides) {
     rolls: [result],
     bonus: 0,
     total: result,
-    label: isDM ? 'MJ' : 'Joueur',
+    label: isDM ? 'MJ' : (playerProfile ? playerProfile.char_name : 'Joueur'),
     crit: isCrit,
     fumble: isFumble,
     note: isCrit ? '🌟 CRITIQUE !' : isFumble ? '💀 FUMBLE !' : ''
@@ -1573,7 +1961,7 @@ function customRoll() {
     rolls,
     bonus,
     total: sum,
-    label: isDM ? 'MJ' : 'Joueur',
+    label: isDM ? 'MJ' : (playerProfile ? playerProfile.char_name : 'Joueur'),
     crit: isCrit,
     fumble: isFumble,
     note: isCrit ? '🌟 CRITIQUE !' : isFumble ? '💀 FUMBLE !' : ''
@@ -1591,7 +1979,7 @@ function rollAdvantage(advantage) {
     rolls: [r1, r2],
     bonus: 0,
     total,
-    label: isDM ? 'MJ' : 'Joueur',
+    label: isDM ? 'MJ' : (playerProfile ? playerProfile.char_name : 'Joueur'),
     crit: isCrit,
     fumble: isFumble,
     note: isCrit ? '🌟 CRITIQUE !' : isFumble ? '💀 FUMBLE !' : `Garde le ${kept} (${r1} / ${r2})`
@@ -1599,6 +1987,18 @@ function rollAdvantage(advantage) {
 }
 
 async function addRoll(roll) {
+  // Support for quick bonus rolls (different shape from setupDice)
+  if (roll.result !== undefined && roll.rolls === undefined) {
+    // Convert from quick-roll shape to standard shape
+    roll.total = roll.result;
+    roll.rolls = [roll.result - (roll.modifier || 0)];
+    roll.bonus = roll.modifier || 0;
+    roll.label = roll.roller || roll.label || 'Joueur';
+    roll.note = roll.formula || '';
+    roll.formula = roll.formula || `1d20+${roll.bonus}`;
+    roll.crit = roll.is_crit;
+    roll.fumble = roll.is_fumble;
+  }
   // Affiche localement immédiatement
   roll.time = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
   rollHistory.unshift(roll);
@@ -1611,8 +2011,8 @@ async function addRoll(roll) {
     await sb.from('dice_rolls').insert({
       label: roll.label,
       formula: roll.formula,
-      rolls: roll.rolls,
-      bonus: roll.bonus,
+      rolls: roll.rolls || [roll.total],
+      bonus: roll.bonus || 0,
       total: roll.total,
       note: roll.note || ''
     });
