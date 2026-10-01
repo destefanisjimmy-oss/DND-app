@@ -1,0 +1,1614 @@
+<title>Table de Jeu</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@400;500;600&display=swap">
+
+<style>
+/*
+  Layout: full-height app, sidebar nav + main panel
+  Color: deep parchment dark, blood red accent, bone white text
+  Type: Cinzel (titres heroic fantasy) + Inter (UI data)
+*/
+:root {
+  color-scheme: dark;
+  --bg:        #0f0d0b;
+  --bg-2:      #1a1612;
+  --bg-3:      #241f19;
+  --bg-4:      #2e2820;
+  --border:    #3d3528;
+  --fg:        #e8dcc8;
+  --fg-muted:  #9a8e7a;
+  --accent:    #c0392b;
+  --accent-2:  #e74c3c;
+  --accent-glow: rgba(192,57,43,0.18);
+  --gold:      #c9a227;
+  --gold-dim:  #6b540f;
+  --green:     #27ae60;
+  --green-dim: #1a5c38;
+  --yellow:    #f39c12;
+  --purple:    #8e44ad;
+  --font-title: 'Cinzel', 'Times New Roman', serif;
+  --font-ui:    'Inter', system-ui, sans-serif;
+  --radius:     6px;
+  --shadow:     0 2px 12px rgba(0,0,0,0.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; height: 100%; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ── LOGIN ── */
+#login-screen {
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, #1a1208 0%, #0a0806 100%);
+}
+.login-box {
+  width: min(380px, 90vw);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+}
+.login-crest {
+  font-size: 48px;
+  line-height: 1;
+}
+.login-title {
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gold);
+  text-align: center;
+  letter-spacing: 0.05em;
+  text-wrap: balance;
+}
+.login-sub {
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+  text-align: center;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.login-options {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: var(--fg);
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.login-btn:hover { background: var(--bg-4); border-color: var(--gold-dim); }
+.login-btn.dm {
+  background: var(--accent);
+  border-color: var(--accent-2);
+  color: #fff;
+}
+.login-btn.dm:hover { background: var(--accent-2); }
+
+.dm-password-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dm-password-form input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+}
+.dm-password-form input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.error-msg { color: var(--accent-2); font-size: 0.8rem; text-align: center; min-height: 1rem; }
+
+/* ── APP LAYOUT ── */
+#app-screen {
+  flex-direction: row;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--bg-2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+}
+.sidebar-header {
+  padding: 18px 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-title {
+  font-family: var(--font-title);
+  font-size: 0.95rem;
+  color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.sidebar-role {
+  font-size: 0.7rem;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+}
+.sidebar-role.dm { color: var(--accent-2); }
+
+.nav-section {
+  padding: 12px 8px 4px;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--fg-muted);
+  padding-inline: 16px;
+}
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--fg-muted);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  width: 100%;
+  text-align: left;
+  transition: all 0.15s;
+  border-radius: 0;
+}
+.nav-btn:hover { background: var(--bg-3); color: var(--fg); }
+.nav-btn.active { background: var(--accent-glow); color: var(--fg); border-right: 2px solid var(--accent); }
+.nav-icon { font-size: 1rem; width: 18px; text-align: center; flex-shrink: 0; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+.connection-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--fg-muted);
+  margin-right: 6px;
+  transition: background 0.3s;
+}
+.connection-dot.connected { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.connection-status { font-size: 0.72rem; color: var(--fg-muted); }
+
+/* ── MAIN PANEL ── */
+.main-panel {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.panel-view { display: none; flex-direction: column; height: 100%; }
+.panel-view.active { display: flex; }
+
+.panel-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.panel-title {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--fg);
+  letter-spacing: 0.04em;
+}
+.panel-body {
+  padding: 20px 24px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── COMBAT TRACKER ── */
+.combat-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--bg-4); }
+.btn.primary { background: var(--accent); border-color: var(--accent-2); color: #fff; }
+.btn.primary:hover { background: var(--accent-2); }
+.btn.success { background: var(--green-dim); border-color: var(--green); color: var(--fg); }
+.btn.danger { background: #3d1515; border-color: var(--accent); color: var(--accent-2); }
+.btn.sm { padding: 4px 10px; font-size: 0.75rem; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.combat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.combatant-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: 32px 1fr auto auto auto;
+  gap: 10px;
+  align-items: center;
+  transition: all 0.2s;
+  position: relative;
+}
+.combatant-card.active-turn {
+  border-color: var(--gold);
+  background: var(--bg-3);
+  box-shadow: inset 3px 0 0 var(--gold), var(--shadow);
+}
+.combatant-card.dead { opacity: 0.4; }
+
+.init-badge {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--bg-4);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.combatant-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+  min-width: 0;
+}
+.combatant-type-badge {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-top: 2px;
+}
+.type-player { background: #1a3a5c; color: #5b9bd5; }
+.type-enemy  { background: #3d1515; color: #e57373; }
+.type-npc    { background: #1a2e1a; color: #66bb6a; }
+
+.hp-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 60px;
+}
+.hp-bar-wrap {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-4);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.hp-bar {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--green);
+  transition: width 0.3s, background 0.3s;
+}
+.hp-text {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+
+.conditions-list {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  min-width: 80px;
+}
+.condition-badge {
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--purple);
+  color: #fff;
+  white-space: nowrap;
+}
+
+.combatant-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.turn-indicator {
+  position: absolute;
+  top: -1px; right: -1px;
+  background: var(--gold);
+  color: var(--bg);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 0 var(--radius) 0 4px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--fg-muted);
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.empty-icon { font-size: 2.5rem; opacity: 0.4; }
+.round-badge {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+.modal-overlay[hidden] { display: none; }
+.modal {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: min(440px, 100%);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+}
+.modal-header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-title);
+  font-size: 0.95rem;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-close {
+  background: none; border: none; color: var(--fg-muted);
+  cursor: pointer; font-size: 1.2rem; line-height: 1;
+}
+.modal-close:hover { color: var(--fg); }
+.modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.field label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fg-muted);
+}
+.field input, .field select, .field textarea {
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.field textarea { resize: vertical; min-height: 90px; }
+.field-row { display: flex; gap: 10px; }
+.field-row .field { flex: 1; }
+
+/* ── NOTES ── */
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+.note-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s;
+}
+.note-card.visible { border-color: var(--gold-dim); }
+.note-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+.note-title {
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-wrap: balance;
+}
+.note-content {
+  font-size: 0.82rem;
+  color: var(--fg-muted);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.note-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+.category-badge {
+  font-size: 0.65rem;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--bg-3);
+  color: var(--fg-muted);
+}
+.cat-lore    { background: #1a2040; color: #7b9ede; }
+.cat-combat  { background: #3d1515; color: #e57373; }
+.cat-secret  { background: #2a1a3d; color: #b39ddb; }
+.cat-general { background: var(--bg-3); color: var(--fg-muted); }
+.visible-badge {
+  font-size: 0.65rem;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: #1a3a1a;
+  color: var(--green);
+  letter-spacing: 0.06em;
+}
+
+.note-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+/* ── HP EDIT POPUP ── */
+.hp-popup {
+  position: fixed;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  z-index: 50;
+  box-shadow: var(--shadow);
+}
+.hp-popup[hidden] { display: none; }
+.hp-popup input {
+  width: 70px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  text-align: center;
+}
+.hp-popup input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+/* ── CONDITIONS PICKER ── */
+.conditions-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cond-toggle {
+  padding: 4px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: var(--fg-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cond-toggle.on { background: var(--purple); border-color: #a55fc0; color: #fff; }
+
+/* ── DICE ── */
+.dice-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.dice-btn {
+  padding: 10px 6px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: var(--fg);
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+.dice-btn:hover { background: var(--bg-4); border-color: var(--gold-dim); color: var(--gold); }
+.dice-btn[data-die="20"] { grid-column: span 2; background: var(--accent-glow); border-color: var(--accent); color: var(--accent-2); }
+.dice-btn[data-die="20"]:hover { background: var(--accent); color: #fff; }
+
+.roll-entry {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  animation: rollIn 0.25s ease;
+}
+.roll-entry.crit { border-color: var(--gold); background: rgba(201,162,39,0.08); }
+.roll-entry.fumble { border-color: var(--accent); background: rgba(192,57,43,0.08); }
+@keyframes rollIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.roll-label { font-size: 0.78rem; color: var(--fg-muted); }
+.roll-formula { font-size: 0.72rem; color: var(--fg-muted); margin-top: 1px; }
+.roll-result {
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+  line-height: 1;
+}
+.roll-result.crit { color: var(--gold); }
+.roll-result.fumble { color: var(--accent-2); }
+.roll-detail { font-size: 0.7rem; color: var(--fg-muted); margin-top: 2px; text-align: right; }
+
+/* ── MOBILE ── */
+@media (max-width: 640px) {
+  .sidebar { width: 56px; }
+  .sidebar-title, .sidebar-role, .nav-section, .nav-btn span { display: none; }
+  .nav-btn { justify-content: center; padding: 12px; }
+  .sidebar-footer .connection-status { display: none; }
+  .combatant-card { grid-template-columns: 28px 1fr auto auto; }
+  .conditions-list { display: none; }
+  .panel-body { padding: 14px 16px; }
+  .notes-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="screen active">
+  <div class="login-box">
+    <div class="login-crest">⚔️</div>
+    <div>
+      <div class="login-title">Table de Jeu</div>
+      <div class="login-sub">Choisissez votre rôle</div>
+    </div>
+    <div class="login-options">
+      <div id="dm-login-section">
+        <button class="login-btn dm" id="show-dm-form">⚜️ &nbsp;Maître de Donjon</button>
+        <div class="dm-password-form" id="dm-password-form" style="display:none;margin-top:10px">
+          <input type="password" id="dm-password-input" placeholder="Mot de passe DM…" />
+          <button class="btn primary" id="dm-login-btn" style="width:100%;padding:12px">Entrer</button>
+          <div class="error-msg" id="dm-error"></div>
+        </div>
+      </div>
+      <button class="login-btn" id="player-login-btn">🎲 &nbsp;Joueur</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="app-screen" class="screen">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Table de Jeu</div>
+      <div class="sidebar-role" id="role-label">Joueur</div>
+    </div>
+    <div class="nav-section">Combat</div>
+    <button class="nav-btn active" data-view="combat">
+      <span class="nav-icon">⚔️</span><span>Initiative</span>
+    </button>
+    <div class="nav-section">Dés</div>
+    <button class="nav-btn" data-view="dice">
+      <span class="nav-icon">🎲</span><span>Dés</span>
+    </button>
+    <div class="nav-section">Lore</div>
+    <button class="nav-btn" data-view="notes">
+      <span class="nav-icon">📜</span><span>Notes</span>
+    </button>
+    <div class="sidebar-footer">
+      <span class="connection-dot" id="conn-dot"></span>
+      <span class="connection-status" id="conn-status">Connexion…</span>
+    </div>
+  </nav>
+
+  <!-- Main Panel -->
+  <main class="main-panel">
+
+    <!-- COMBAT VIEW -->
+    <div class="panel-view active" id="view-combat">
+      <div class="panel-header">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <span class="panel-title">⚔️ Tableau de Combat</span>
+          <span class="round-badge" id="round-badge">Round 1</span>
+        </div>
+        <div class="combat-toolbar" id="dm-combat-toolbar" style="display:none">
+          <button class="btn primary" id="add-combatant-btn">+ Ajouter</button>
+          <button class="btn success" id="next-turn-btn">Tour suivant →</button>
+          <button class="btn danger" id="clear-combat-btn">Réinitialiser</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="combat-list" id="combat-list">
+          <div class="empty-state" id="combat-empty">
+            <div class="empty-icon">🗡️</div>
+            <div>Aucun combat en cours.<br>Le MJ lancera bientôt l'initiative.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DICE VIEW -->
+    <div class="panel-view" id="view-dice">
+      <div class="panel-header">
+        <span class="panel-title">🎲 Lancer de Dés</span>
+        <button class="btn sm" id="clear-rolls-btn">Effacer l'historique</button>
+      </div>
+      <div class="panel-body" style="flex-direction:row;gap:20px;align-items:flex-start;flex-wrap:wrap">
+
+        <!-- Dés rapides -->
+        <div style="display:flex;flex-direction:column;gap:14px;min-width:200px;flex:0 0 auto">
+          <div>
+            <div class="nav-section" style="padding-inline:0;margin-bottom:8px">Dés rapides</div>
+            <div class="dice-quick-grid" id="dice-quick-grid">
+              <button class="dice-btn" data-die="4">d4</button>
+              <button class="dice-btn" data-die="6">d6</button>
+              <button class="dice-btn" data-die="8">d8</button>
+              <button class="dice-btn" data-die="10">d10</button>
+              <button class="dice-btn" data-die="12">d12</button>
+              <button class="dice-btn" data-die="20">d20 ⚔️</button>
+              <button class="dice-btn" data-die="100">d100</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="nav-section" style="padding-inline:0;margin-bottom:8px">Formule personnalisée</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;gap:6px;align-items:center">
+                <input type="number" id="dice-count" value="1" min="1" max="20" style="width:52px;padding:8px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg);color:var(--fg);font-size:0.9rem;text-align:center" />
+                <span style="color:var(--fg-muted)">d</span>
+                <input type="number" id="dice-sides" value="6" min="2" max="1000" style="width:62px;padding:8px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg);color:var(--fg);font-size:0.9rem;text-align:center" />
+                <span style="color:var(--fg-muted)">+</span>
+                <input type="number" id="dice-bonus" value="0" min="-99" max="99" style="width:52px;padding:8px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg);color:var(--fg);font-size:0.9rem;text-align:center" />
+              </div>
+              <button class="btn primary" id="dice-roll-btn">Lancer</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="nav-section" style="padding-inline:0;margin-bottom:8px">Avantage / Désavantage</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn" id="roll-adv-btn" style="flex:1">↑ Avantage</button>
+              <button class="btn" id="roll-dis-btn" style="flex:1">↓ Désavant.</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historique -->
+        <div style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:10px">
+          <div class="nav-section" style="padding-inline:0;margin-bottom:0">Historique (visible par tous)</div>
+          <div id="roll-history" style="display:flex;flex-direction:column;gap:6px">
+            <div class="empty-state" id="roll-empty" style="padding:24px 0">
+              <div class="empty-icon">🎲</div>
+              <div>Aucun lancer pour l'instant.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NOTES VIEW -->
+    <div class="panel-view" id="view-notes">
+      <div class="panel-header">
+        <span class="panel-title">📜 Notes & Lore</span>
+        <button class="btn primary" id="add-note-btn" style="display:none">+ Ajouter</button>
+      </div>
+      <div class="panel-body">
+        <div class="notes-grid" id="notes-grid">
+          <div class="empty-state" style="grid-column:1/-1">
+            <div class="empty-icon">📖</div>
+            <div>Aucune note pour l'instant.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL: Ajouter combattant -->
+<div class="modal-overlay" id="modal-combatant" hidden>
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modal-combatant-title">Ajouter un combattant</span>
+      <button class="modal-close" data-close="modal-combatant">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Nom</label>
+        <input type="text" id="c-name" placeholder="Aldric le Gardien…" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Initiative</label>
+          <input type="number" id="c-init" value="10" min="1" max="30" />
+        </div>
+        <div class="field">
+          <label>PV actuels</label>
+          <input type="number" id="c-hp-cur" value="30" min="0" />
+        </div>
+        <div class="field">
+          <label>PV max</label>
+          <input type="number" id="c-hp-max" value="30" min="1" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Type</label>
+        <select id="c-type">
+          <option value="player">Joueur (PJ)</option>
+          <option value="enemy">Ennemi</option>
+          <option value="npc">PNJ</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Conditions</label>
+        <div class="conditions-picker" id="add-conditions-picker"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-close="modal-combatant">Annuler</button>
+      <button class="btn primary" id="save-combatant-btn">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: HP edit -->
+<div class="modal-overlay" id="modal-hp" hidden>
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modal-hp-name">Modifier les PV</span>
+      <button class="modal-close" data-close="modal-hp">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field">
+          <label>PV actuels</label>
+          <input type="number" id="hp-cur-input" min="0" />
+        </div>
+        <div class="field">
+          <label>PV max</label>
+          <input type="number" id="hp-max-input" min="1" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Soins / Dégâts rapides</label>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <input type="number" id="hp-delta-input" placeholder="ex: 5" style="flex:1;padding:10px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--fg);font-size:0.9rem" />
+          <button class="btn success sm" id="hp-heal-btn">+ Soins</button>
+          <button class="btn danger sm" id="hp-damage-btn">- Dégâts</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Conditions</label>
+        <div class="conditions-picker" id="edit-conditions-picker"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-close="modal-hp">Annuler</button>
+      <button class="btn primary" id="save-hp-btn">Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Note -->
+<div class="modal-overlay" id="modal-note" hidden>
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modal-note-title">Ajouter une note</span>
+      <button class="modal-close" data-close="modal-note">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Titre</label>
+        <input type="text" id="n-title" placeholder="L'Emmuré de Fer Noir…" />
+      </div>
+      <div class="field">
+        <label>Contenu</label>
+        <textarea id="n-content" placeholder="Ce que les joueurs découvrent…"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Catégorie</label>
+          <select id="n-category">
+            <option value="general">Général</option>
+            <option value="lore">Lore</option>
+            <option value="combat">Combat</option>
+            <option value="secret">Secret DM</option>
+          </select>
+        </div>
+        <div class="field" style="justify-content:flex-end">
+          <label>Visible joueurs</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:6px">
+            <input type="checkbox" id="n-visible" style="width:auto;accent-color:var(--green)" />
+            <span style="font-size:0.85rem">Révéler maintenant</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-close="modal-note">Annuler</button>
+      <button class="btn primary" id="save-note-btn">Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.7/umd/supabase.min.js"></script>
+<script>
+// ─────────────────────────────────────────────
+// CONFIG — remplace par tes vraies valeurs
+// ─────────────────────────────────────────────
+const SUPABASE_URL  = 'https://bqgodwbwhiwzfwjqulgz.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_h9EY81uDO_5shSWkozHs1g_4yJ75Wv0';
+const DM_PASSWORD   = 'dungeon2024'; // Change ce mot de passe !
+
+const CONDITIONS = [
+  'Assommé','Aveuglé','Charmé','Effrayé','Empoisonné',
+  'Entravé','Étourdi','Invisible','Paralysé','Pétrifié','Sourd'
+];
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let sb, isDM = false, currentRound = 1, activeTurnId = null;
+let combatants = [], notes = [];
+let editingCombatantId = null, editingNoteId = null;
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  buildConditionsPickers();
+  setupLogin();
+  setupNavigation();
+  setupModals();
+});
+
+// ─────────────────────────────────────────────
+// LOGIN
+// ─────────────────────────────────────────────
+function setupLogin() {
+  document.getElementById('show-dm-form').addEventListener('click', () => {
+    const form = document.getElementById('dm-password-form');
+    form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+    if (form.style.display !== 'none')
+      document.getElementById('dm-password-input').focus();
+  });
+
+  document.getElementById('dm-login-btn').addEventListener('click', doLogin);
+  document.getElementById('dm-password-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  document.getElementById('player-login-btn').addEventListener('click', () => {
+    isDM = false;
+    enterApp();
+  });
+}
+
+function doLogin() {
+  const pw = document.getElementById('dm-password-input').value;
+  if (pw === DM_PASSWORD) {
+    isDM = true;
+    enterApp();
+  } else {
+    document.getElementById('dm-error').textContent = 'Mot de passe incorrect.';
+  }
+}
+
+function enterApp() {
+  document.getElementById('login-screen').classList.remove('active');
+  document.getElementById('app-screen').classList.add('active');
+
+  document.getElementById('role-label').textContent = isDM ? 'Maître de Donjon' : 'Joueur';
+  document.getElementById('role-label').className = 'sidebar-role' + (isDM ? ' dm' : '');
+  document.getElementById('dm-combat-toolbar').style.display = isDM ? 'flex' : 'none';
+  document.getElementById('add-note-btn').style.display = isDM ? '' : 'none';
+
+  setupDice();
+  initSupabase();
+}
+
+// ─────────────────────────────────────────────
+// SUPABASE REALTIME
+// ─────────────────────────────────────────────
+async function initSupabase() {
+  setConnStatus(false);
+
+  // Load initial data
+  await Promise.all([loadCombat(), loadNotes()]);
+
+  // Load initial dice history
+  await loadRolls();
+
+  // Subscribe realtime
+  sb.channel('app-realtime')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'combat_entries' }, payload => {
+      handleCombatChange(payload);
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'notes' }, payload => {
+      handleNoteChange(payload);
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'dice_rolls' }, payload => {
+      handleRollInsert(payload.new);
+    })
+    .subscribe(status => {
+      setConnStatus(status === 'SUBSCRIBED');
+    });
+}
+
+function setConnStatus(connected) {
+  document.getElementById('conn-dot').className = 'connection-dot' + (connected ? ' connected' : '');
+  document.getElementById('conn-status').textContent = connected ? 'Connecté' : 'Connexion…';
+}
+
+// ─────────────────────────────────────────────
+// COMBAT DATA
+// ─────────────────────────────────────────────
+async function loadCombat() {
+  const { data } = await sb
+    .from('combat_entries')
+    .select('*')
+    .order('initiative', { ascending: false });
+  if (data) {
+    combatants = data;
+    renderCombat();
+  }
+}
+
+function handleCombatChange(payload) {
+  if (payload.eventType === 'INSERT') {
+    combatants.push(payload.new);
+    combatants.sort((a, b) => b.initiative - a.initiative);
+  } else if (payload.eventType === 'UPDATE') {
+    const i = combatants.findIndex(c => c.id === payload.new.id);
+    if (i >= 0) combatants[i] = payload.new;
+    else combatants.push(payload.new);
+    combatants.sort((a, b) => b.initiative - a.initiative);
+  } else if (payload.eventType === 'DELETE') {
+    combatants = combatants.filter(c => c.id !== payload.old.id);
+  }
+  renderCombat();
+}
+
+function renderCombat() {
+  const list = document.getElementById('combat-list');
+  const empty = document.getElementById('combat-empty');
+
+  if (combatants.length === 0) {
+    empty.style.display = '';
+    list.querySelectorAll('.combatant-card').forEach(el => el.remove());
+    document.getElementById('round-badge').textContent = 'Round 1';
+    return;
+  }
+
+  empty.style.display = 'none';
+
+  // Remove deleted cards
+  list.querySelectorAll('.combatant-card').forEach(el => {
+    if (!combatants.find(c => c.id === el.dataset.id)) el.remove();
+  });
+
+  // Upsert cards
+  combatants.forEach((c, i) => {
+    let card = list.querySelector(`.combatant-card[data-id="${c.id}"]`);
+    const isActive = c.is_active;
+    const pct = c.hp_max > 0 ? Math.max(0, Math.min(100, (c.hp_current / c.hp_max) * 100)) : 0;
+    const hpColor = pct > 60 ? 'var(--green)' : pct > 25 ? 'var(--yellow)' : 'var(--accent-2)';
+    const conditions = Array.isArray(c.conditions) ? c.conditions : [];
+
+    const dmButtons = isDM ? `
+      <button class="btn sm" onclick="openEditHP('${c.id}')">✏️ PV</button>
+      <button class="btn sm danger" onclick="removeCombatant('${c.id}')">✕</button>
+    ` : '';
+
+    const html = `
+      ${isActive ? '<div class="turn-indicator">Tour actif</div>' : ''}
+      <div class="init-badge">${c.initiative}</div>
+      <div>
+        <div class="combatant-name">${escHtml(c.name)}</div>
+        <span class="combatant-type-badge type-${c.type}">${typeLabel(c.type)}</span>
+      </div>
+      <div class="conditions-list">
+        ${conditions.map(cd => `<span class="condition-badge">${escHtml(cd)}</span>`).join('')}
+      </div>
+      <div class="hp-display">
+        <div class="hp-text" style="color:${hpColor}">${c.hp_current} / ${c.hp_max}</div>
+        <div class="hp-bar-wrap"><div class="hp-bar" style="width:${pct}%;background:${hpColor}"></div></div>
+      </div>
+      <div class="combatant-actions">${dmButtons}</div>
+    `;
+
+    if (!card) {
+      card = document.createElement('div');
+      card.className = 'combatant-card';
+      card.dataset.id = c.id;
+      // Insert at right position
+      const after = list.querySelectorAll('.combatant-card')[i];
+      if (after) list.insertBefore(card, after);
+      else list.appendChild(card);
+    }
+
+    card.innerHTML = html;
+    card.className = 'combatant-card' + (isActive ? ' active-turn' : '') + (c.hp_current <= 0 ? ' dead' : '');
+    card.dataset.id = c.id;
+  });
+
+  // Round badge — count active
+  const active = combatants.find(c => c.is_active);
+  if (active) {
+    document.getElementById('round-badge').textContent = `Round ${currentRound}`;
+  }
+}
+
+function typeLabel(t) {
+  return { player: 'PJ', enemy: 'Ennemi', npc: 'PNJ' }[t] || t;
+}
+
+// ─────────────────────────────────────────────
+// COMBAT ACTIONS (DM only)
+// ─────────────────────────────────────────────
+document.addEventListener('click', e => {
+  if (e.target.id === 'add-combatant-btn') openAddCombatant();
+  if (e.target.id === 'next-turn-btn') nextTurn();
+  if (e.target.id === 'clear-combat-btn') confirmClear();
+  if (e.target.id === 'save-combatant-btn') saveCombatant();
+  if (e.target.id === 'save-hp-btn') saveHP();
+  if (e.target.id === 'save-note-btn') saveNote();
+  if (e.target.id === 'add-note-btn') openAddNote();
+  if (e.target.id === 'hp-heal-btn') applyDelta(1);
+  if (e.target.id === 'hp-damage-btn') applyDelta(-1);
+});
+
+async function nextTurn() {
+  if (combatants.length === 0) return;
+  const idx = combatants.findIndex(c => c.is_active);
+  const nextIdx = (idx + 1) % combatants.length;
+
+  // Increment round when we loop back to first
+  if (nextIdx === 0 && idx >= 0) currentRound++;
+
+  // Update DB
+  const updates = combatants.map((c, i) => ({
+    id: c.id,
+    is_active: i === nextIdx
+  }));
+
+  for (const u of updates) {
+    await sb.from('combat_entries').update({ is_active: u.is_active }).eq('id', u.id);
+  }
+}
+
+async function removeCombatant(id) {
+  await sb.from('combat_entries').delete().eq('id', id);
+}
+
+async function confirmClear() {
+  // Simple confirm via inline toggle — since alert() is blocked
+  const btn = document.getElementById('clear-combat-btn');
+  if (btn.dataset.confirm === '1') {
+    await sb.from('combat_entries').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    combatants = [];
+    currentRound = 1;
+    renderCombat();
+    btn.textContent = 'Réinitialiser';
+    btn.dataset.confirm = '';
+  } else {
+    btn.textContent = 'Confirmer ?';
+    btn.dataset.confirm = '1';
+    setTimeout(() => { btn.textContent = 'Réinitialiser'; btn.dataset.confirm = ''; }, 3000);
+  }
+}
+
+// ─────────────────────────────────────────────
+// ADD COMBATANT MODAL
+// ─────────────────────────────────────────────
+function openAddCombatant() {
+  editingCombatantId = null;
+  document.getElementById('modal-combatant-title').textContent = 'Ajouter un combattant';
+  document.getElementById('c-name').value = '';
+  document.getElementById('c-init').value = '10';
+  document.getElementById('c-hp-cur').value = '30';
+  document.getElementById('c-hp-max').value = '30';
+  document.getElementById('c-type').value = 'player';
+  resetConditionsPicker('add-conditions-picker', []);
+  openModal('modal-combatant');
+}
+
+async function saveCombatant() {
+  const name = document.getElementById('c-name').value.trim();
+  if (!name) return;
+
+  const conditions = getSelectedConditions('add-conditions-picker');
+  const payload = {
+    name,
+    initiative: parseInt(document.getElementById('c-init').value) || 0,
+    hp_current: parseInt(document.getElementById('c-hp-cur').value) || 0,
+    hp_max: parseInt(document.getElementById('c-hp-max').value) || 1,
+    type: document.getElementById('c-type').value,
+    conditions,
+    is_active: false
+  };
+
+  await sb.from('combat_entries').insert(payload);
+  closeModal('modal-combatant');
+}
+
+// ─────────────────────────────────────────────
+// EDIT HP MODAL
+// ─────────────────────────────────────────────
+function openEditHP(id) {
+  const c = combatants.find(x => x.id === id);
+  if (!c) return;
+  editingCombatantId = id;
+  document.getElementById('modal-hp-name').textContent = `PV — ${c.name}`;
+  document.getElementById('hp-cur-input').value = c.hp_current;
+  document.getElementById('hp-max-input').value = c.hp_max;
+  document.getElementById('hp-delta-input').value = '';
+  resetConditionsPicker('edit-conditions-picker', c.conditions || []);
+  openModal('modal-hp');
+}
+
+function applyDelta(sign) {
+  const delta = parseInt(document.getElementById('hp-delta-input').value) || 0;
+  const cur = parseInt(document.getElementById('hp-cur-input').value) || 0;
+  const max = parseInt(document.getElementById('hp-max-input').value) || 1;
+  const newVal = Math.max(0, Math.min(max, cur + sign * delta));
+  document.getElementById('hp-cur-input').value = newVal;
+  document.getElementById('hp-delta-input').value = '';
+}
+
+async function saveHP() {
+  if (!editingCombatantId) return;
+  const conditions = getSelectedConditions('edit-conditions-picker');
+  await sb.from('combat_entries').update({
+    hp_current: parseInt(document.getElementById('hp-cur-input').value) || 0,
+    hp_max: parseInt(document.getElementById('hp-max-input').value) || 1,
+    conditions
+  }).eq('id', editingCombatantId);
+  closeModal('modal-hp');
+}
+
+// ─────────────────────────────────────────────
+// CONDITIONS
+// ─────────────────────────────────────────────
+function buildConditionsPickers() {
+  ['add-conditions-picker', 'edit-conditions-picker'].forEach(pickerId => {
+    const el = document.getElementById(pickerId);
+    CONDITIONS.forEach(cond => {
+      const btn = document.createElement('button');
+      btn.className = 'cond-toggle';
+      btn.textContent = cond;
+      btn.dataset.cond = cond;
+      btn.addEventListener('click', () => btn.classList.toggle('on'));
+      el.appendChild(btn);
+    });
+  });
+}
+
+function resetConditionsPicker(pickerId, active) {
+  document.getElementById(pickerId).querySelectorAll('.cond-toggle').forEach(btn => {
+    btn.classList.toggle('on', active.includes(btn.dataset.cond));
+  });
+}
+
+function getSelectedConditions(pickerId) {
+  return [...document.getElementById(pickerId).querySelectorAll('.cond-toggle.on')].map(b => b.dataset.cond);
+}
+
+// ─────────────────────────────────────────────
+// NOTES DATA
+// ─────────────────────────────────────────────
+async function loadNotes() {
+  const { data } = await sb.from('notes').select('*').order('created_at', { ascending: false });
+  if (data) {
+    notes = isDM ? data : data.filter(n => n.visible_to_players);
+    renderNotes();
+  }
+}
+
+function handleNoteChange(payload) {
+  if (payload.eventType === 'INSERT') {
+    const n = payload.new;
+    if (isDM || n.visible_to_players) notes.unshift(n);
+  } else if (payload.eventType === 'UPDATE') {
+    const i = notes.findIndex(n => n.id === payload.new.id);
+    const n = payload.new;
+    if (isDM || n.visible_to_players) {
+      if (i >= 0) notes[i] = n;
+      else notes.unshift(n);
+    } else {
+      if (i >= 0) notes.splice(i, 1);
+    }
+  } else if (payload.eventType === 'DELETE') {
+    notes = notes.filter(n => n.id !== payload.old.id);
+  }
+  renderNotes();
+}
+
+function renderNotes() {
+  const grid = document.getElementById('notes-grid');
+  grid.innerHTML = '';
+
+  if (notes.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-icon">📖</div>
+      <div>${isDM ? 'Aucune note. Ajoutez-en une !' : 'Aucune note révélée par le MJ.'}</div>
+    </div>`;
+    return;
+  }
+
+  notes.forEach(n => {
+    const dmTools = isDM ? `
+      <div class="note-actions">
+        <button class="btn sm" onclick="toggleNoteVisibility('${n.id}',${!n.visible_to_players})">${n.visible_to_players ? '🙈 Masquer' : '👁 Révéler'}</button>
+        <button class="btn sm danger" onclick="deleteNote('${n.id}')">✕</button>
+      </div>
+    ` : '';
+
+    const card = document.createElement('div');
+    card.className = 'note-card' + (n.visible_to_players ? ' visible' : '');
+    card.innerHTML = `
+      <div class="note-card-header">
+        <div class="note-title">${escHtml(n.title)}</div>
+        ${dmTools}
+      </div>
+      <div class="note-content">${escHtml(n.content)}</div>
+      <div class="note-footer">
+        <span class="category-badge cat-${n.category}">${catLabel(n.category)}</span>
+        ${n.visible_to_players ? '<span class="visible-badge">👁 Visible</span>' : (isDM ? '<span style="font-size:0.65rem;color:var(--fg-muted)">🔒 Caché</span>' : '')}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function catLabel(c) {
+  return { general: 'Général', lore: 'Lore', combat: 'Combat', secret: 'Secret' }[c] || c;
+}
+
+// ─────────────────────────────────────────────
+// NOTE ACTIONS
+// ─────────────────────────────────────────────
+function openAddNote() {
+  editingNoteId = null;
+  document.getElementById('modal-note-title').textContent = 'Ajouter une note';
+  document.getElementById('n-title').value = '';
+  document.getElementById('n-content').value = '';
+  document.getElementById('n-category').value = 'general';
+  document.getElementById('n-visible').checked = false;
+  openModal('modal-note');
+}
+
+async function saveNote() {
+  const title = document.getElementById('n-title').value.trim();
+  const content = document.getElementById('n-content').value.trim();
+  if (!title || !content) return;
+
+  const payload = {
+    title,
+    content,
+    category: document.getElementById('n-category').value,
+    visible_to_players: document.getElementById('n-visible').checked
+  };
+
+  if (editingNoteId) {
+    await sb.from('notes').update(payload).eq('id', editingNoteId);
+  } else {
+    await sb.from('notes').insert(payload);
+  }
+  closeModal('modal-note');
+}
+
+async function toggleNoteVisibility(id, visible) {
+  await sb.from('notes').update({ visible_to_players: visible }).eq('id', id);
+}
+
+async function deleteNote(id) {
+  await sb.from('notes').delete().eq('id', id);
+}
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+function setupNavigation() {
+  document.querySelectorAll('.nav-btn[data-view]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const view = btn.dataset.view;
+      document.querySelectorAll('.panel-view').forEach(v => v.classList.remove('active'));
+      document.getElementById(`view-${view}`).classList.add('active');
+    });
+  });
+}
+
+// ─────────────────────────────────────────────
+// MODALS
+// ─────────────────────────────────────────────
+function setupModals() {
+  document.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', () => closeModal(btn.dataset.close));
+  });
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) closeModal(overlay.id);
+    });
+  });
+}
+
+function openModal(id) { document.getElementById(id).hidden = false; }
+function closeModal(id) { document.getElementById(id).hidden = true; }
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// DICE
+// ─────────────────────────────────────────────
+let rollHistory = [];
+
+function setupDice() {
+  document.querySelectorAll('.dice-btn').forEach(btn => {
+    btn.addEventListener('click', () => quickRoll(parseInt(btn.dataset.die)));
+  });
+  document.getElementById('dice-roll-btn').addEventListener('click', customRoll);
+  document.getElementById('roll-adv-btn').addEventListener('click', () => rollAdvantage(true));
+  document.getElementById('roll-dis-btn').addEventListener('click', () => rollAdvantage(false));
+  document.getElementById('clear-rolls-btn').addEventListener('click', async () => {
+    await sb.from('dice_rolls').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    rollHistory = [];
+    renderRolls();
+  });
+}
+
+function rollDie(sides) {
+  return Math.floor(Math.random() * sides) + 1;
+}
+
+function quickRoll(sides) {
+  const result = rollDie(sides);
+  const isCrit = sides === 20 && result === 20;
+  const isFumble = sides === 20 && result === 1;
+  addRoll({
+    formula: `1d${sides}`,
+    rolls: [result],
+    bonus: 0,
+    total: result,
+    label: isDM ? 'MJ' : 'Joueur',
+    crit: isCrit,
+    fumble: isFumble,
+    note: isCrit ? '🌟 CRITIQUE !' : isFumble ? '💀 FUMBLE !' : ''
+  });
+}
+
+function customRoll() {
+  const count = Math.max(1, Math.min(20, parseInt(document.getElementById('dice-count').value) || 1));
+  const sides = Math.max(2, parseInt(document.getElementById('dice-sides').value) || 6);
+  const bonus = parseInt(document.getElementById('dice-bonus').value) || 0;
+
+  const rolls = Array.from({length: count}, () => rollDie(sides));
+  const sum = rolls.reduce((a, b) => a + b, 0) + bonus;
+
+  const isCrit = sides === 20 && count === 1 && rolls[0] === 20;
+  const isFumble = sides === 20 && count === 1 && rolls[0] === 1;
+
+  addRoll({
+    formula: `${count}d${sides}${bonus !== 0 ? (bonus > 0 ? `+${bonus}` : bonus) : ''}`,
+    rolls,
+    bonus,
+    total: sum,
+    label: isDM ? 'MJ' : 'Joueur',
+    crit: isCrit,
+    fumble: isFumble,
+    note: isCrit ? '🌟 CRITIQUE !' : isFumble ? '💀 FUMBLE !' : ''
+  });
+}
+
+function rollAdvantage(advantage) {
+  const r1 = rollDie(20), r2 = rollDie(20);
+  const total = advantage ? Math.max(r1, r2) : Math.min(r1, r2);
+  const kept = advantage ? (r1 >= r2 ? r1 : r2) : (r1 <= r2 ? r1 : r2);
+  const isCrit = kept === 20;
+  const isFumble = kept === 1;
+  addRoll({
+    formula: advantage ? '2d20 avantage' : '2d20 désavantage',
+    rolls: [r1, r2],
+    bonus: 0,
+    total,
+    label: isDM ? 'MJ' : 'Joueur',
+    crit: isCrit,
+    fumble: isFumble,
+    note: isCrit ? '🌟 CRITIQUE !' : isFumble ? '💀 FUMBLE !' : `Garde le ${kept} (${r1} / ${r2})`
+  });
+}
+
+async function addRoll(roll) {
+  // Save to Supabase — realtime will trigger renderRolls for everyone
+  await sb.from('dice_rolls').insert({
+    label: roll.label,
+    formula: roll.formula,
+    rolls: roll.rolls,
+    bonus: roll.bonus,
+    total: roll.total,
+    note: roll.note || ''
+  });
+}
+
+async function loadRolls() {
+  const { data } = await sb
+    .from('dice_rolls')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(30);
+  if (data) {
+    rollHistory = data.map(r => ({
+      ...r,
+      time: new Date(r.created_at).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}),
+      crit: r.rolls.length === 1 && r.total === 20 && r.formula.includes('d20'),
+      fumble: r.rolls.length === 1 && r.total === 1 && r.formula.includes('d20')
+    }));
+    renderRolls();
+  }
+}
+
+function handleRollInsert(row) {
+  const roll = {
+    ...row,
+    time: new Date(row.created_at).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}),
+    crit: row.rolls.length === 1 && row.total === 20 && row.formula.includes('d20'),
+    fumble: row.rolls.length === 1 && row.total === 1 && row.formula.includes('d20')
+  };
+  rollHistory.unshift(roll);
+  if (rollHistory.length > 30) rollHistory.pop();
+  renderRolls();
+}
+
+function renderRolls() {
+  const hist = document.getElementById('roll-history');
+  const empty = document.getElementById('roll-empty');
+
+  if (rollHistory.length === 0) {
+    empty.style.display = '';
+    hist.querySelectorAll('.roll-entry').forEach(el => el.remove());
+    return;
+  }
+  empty.style.display = 'none';
+  hist.querySelectorAll('.roll-entry').forEach(el => el.remove());
+
+  rollHistory.forEach(r => {
+    const el = document.createElement('div');
+    el.className = 'roll-entry' + (r.crit ? ' crit' : r.fumble ? ' fumble' : '');
+    const detailParts = r.rolls.length > 1 ? `[${r.rolls.join(', ')}]${r.bonus !== 0 ? (r.bonus > 0 ? ` + ${r.bonus}` : ` ${r.bonus}`) : ''}` : '';
+    el.innerHTML = `
+      <div>
+        <div class="roll-label">${escHtml(r.label)} · ${r.time}</div>
+        <div class="roll-formula">${escHtml(r.formula)}</div>
+        ${r.note ? `<div style="font-size:0.72rem;color:var(--gold);margin-top:2px">${escHtml(r.note)}</div>` : ''}
+      </div>
+      <div style="text-align:right">
+        <div class="roll-result${r.crit ? ' crit' : r.fumble ? ' fumble' : ''}">${r.total}</div>
+        ${detailParts ? `<div class="roll-detail">${escHtml(detailParts)}</div>` : ''}
+      </div>
+    `;
+    hist.appendChild(el);
+  });
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
