@@ -1037,8 +1037,20 @@ function enterApp() {
   document.getElementById('dm-combat-toolbar').style.display = isDM ? 'flex' : 'none';
   document.getElementById('add-note-btn').style.display = isDM ? '' : 'none';
 
+  // Setup UI immédiatement — pas besoin de Supabase pour ça
   setupDice();
-  initSupabase();
+
+  // Supabase déjà prêt ?
+  if (sb) {
+    initSupabase();
+  } else {
+    // Attend que Supabase soit chargé
+    setConnStatus(false);
+    document.getElementById('conn-status').textContent = 'Chargement…';
+    const wait = setInterval(() => {
+      if (sb) { clearInterval(wait); initSupabase(); }
+    }, 100);
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -1262,8 +1274,23 @@ async function saveCombatant() {
     is_active: false
   };
 
-  await sb.from('combat_entries').insert(payload);
+  // Ferme immédiatement + update local optimiste
   closeModal('modal-combatant');
+  const tempId = 'temp-' + Date.now();
+  combatants.push({ ...payload, id: tempId });
+  combatants.sort((a, b) => b.initiative - a.initiative);
+  renderCombat();
+
+  // Sync Supabase
+  if (sb) {
+    const { data } = await sb.from('combat_entries').insert(payload).select().single();
+    if (data) {
+      // Remplace le temp par le vrai
+      const i = combatants.findIndex(c => c.id === tempId);
+      if (i >= 0) combatants[i] = data;
+      renderCombat();
+    }
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -1293,12 +1320,19 @@ function applyDelta(sign) {
 async function saveHP() {
   if (!editingCombatantId) return;
   const conditions = getSelectedConditions('edit-conditions-picker');
-  await sb.from('combat_entries').update({
+  const updates = {
     hp_current: parseInt(document.getElementById('hp-cur-input').value) || 0,
     hp_max: parseInt(document.getElementById('hp-max-input').value) || 1,
     conditions
-  }).eq('id', editingCombatantId);
+  };
+
+  // Ferme + update local immédiat
   closeModal('modal-hp');
+  const i = combatants.findIndex(c => c.id === editingCombatantId);
+  if (i >= 0) { combatants[i] = { ...combatants[i], ...updates }; renderCombat(); }
+
+  // Sync Supabase
+  if (sb) await sb.from('combat_entries').update(updates).eq('id', editingCombatantId);
 }
 
 // ─────────────────────────────────────────────
@@ -1424,12 +1458,21 @@ async function saveNote() {
     visible_to_players: document.getElementById('n-visible').checked
   };
 
-  if (editingNoteId) {
-    await sb.from('notes').update(payload).eq('id', editingNoteId);
-  } else {
-    await sb.from('notes').insert(payload);
-  }
+  // Ferme immédiatement + update local
   closeModal('modal-note');
+  if (editingNoteId) {
+    const i = notes.findIndex(n => n.id === editingNoteId);
+    if (i >= 0) { notes[i] = { ...notes[i], ...payload }; renderNotes(); }
+    if (sb) await sb.from('notes').update(payload).eq('id', editingNoteId);
+  } else {
+    const tempNote = { ...payload, id: 'temp-' + Date.now(), created_at: new Date().toISOString() };
+    notes.unshift(tempNote);
+    renderNotes();
+    if (sb) {
+      const { data } = await sb.from('notes').insert(payload).select().single();
+      if (data) { const i = notes.findIndex(n => n.id === tempNote.id); if (i >= 0) notes[i] = data; renderNotes(); }
+    }
+  }
 }
 
 async function toggleNoteVisibility(id, visible) {
@@ -1556,15 +1599,24 @@ function rollAdvantage(advantage) {
 }
 
 async function addRoll(roll) {
-  // Save to Supabase — realtime will trigger renderRolls for everyone
-  await sb.from('dice_rolls').insert({
-    label: roll.label,
-    formula: roll.formula,
-    rolls: roll.rolls,
-    bonus: roll.bonus,
-    total: roll.total,
-    note: roll.note || ''
-  });
+  // Affiche localement immédiatement
+  roll.time = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+  rollHistory.unshift(roll);
+  if (rollHistory.length > 30) rollHistory.pop();
+  renderRolls();
+
+  // Sync Supabase si connecté
+  if (!sb) return;
+  try {
+    await sb.from('dice_rolls').insert({
+      label: roll.label,
+      formula: roll.formula,
+      rolls: roll.rolls,
+      bonus: roll.bonus,
+      total: roll.total,
+      note: roll.note || ''
+    });
+  } catch(e) { console.warn('Sync dés échouée:', e); }
 }
 
 async function loadRolls() {
